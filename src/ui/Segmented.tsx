@@ -20,7 +20,7 @@ export function Segmented<T extends string>({
           type="button"
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
-          className="relative flex-1 rounded-xl px-3 py-2 text-sm font-semibold"
+          className="relative h-10 flex-1 rounded-xl px-3 text-sm font-semibold"
         >
           {value === o.value && (
             <motion.span

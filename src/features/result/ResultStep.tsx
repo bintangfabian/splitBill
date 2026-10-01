@@ -1,13 +1,11 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRight, ChevronDown, Share2, Wallet } from 'lucide-react'
+import { ArrowRight, ChevronDown, Wallet } from 'lucide-react'
 import { useState, type Dispatch } from 'react'
-import { toast } from 'sonner'
 import type { Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
-import { buildShareText } from '../../domain/share'
 import { rupiah } from '../../lib/format'
 import type { Action } from '../../state/billReducer'
-import { AnimatedRupiah, Avatar, Button, DoneIllustration } from '../../ui'
+import { AnimatedRupiah, Avatar, DoneIllustration } from '../../ui'
 
 const stagger = {
   hidden: {},
@@ -22,20 +20,6 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
   const [expanded, setExpanded] = useState<string | null>(null)
   const payer = bill.people.find((p) => p.id === bill.payerId)
   const owed = result.perPerson.filter((r) => r.personId !== bill.payerId).reduce((s, r) => s + r.total, 0)
-
-  const share = async () => {
-    const text = buildShareText(bill, result)
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Split Bill', text })
-        return
-      }
-      await navigator.clipboard.writeText(text)
-      toast.success('Rincian disalin', { description: 'Tinggal paste ke grup chat 🙌' })
-    } catch (e) {
-      if ((e as Error).name !== 'AbortError') toast.error('Gagal membagikan rincian')
-    }
-  }
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
@@ -103,7 +87,7 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
                   aria-label="Rekening atau e-wallet pembayar"
                   maxLength={80}
                   autoComplete="off"
-                  className="w-full min-w-0 bg-transparent text-sm font-semibold outline-none placeholder:font-medium placeholder:text-muted/70"
+                  className="w-full min-w-0 bg-transparent text-sm font-semibold outline-none placeholder:font-medium placeholder:text-muted"
                 />
               </label>
               <p className="mt-1.5 text-xs text-muted">Ikut di teks yang dibagikan, mis. BCA 1234567890 a.n. {payer.name}.</p>
@@ -174,11 +158,6 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
         })}
       </div>
 
-      <motion.div variants={rise} className="mt-6">
-        <Button variant="lime" className="w-full" onClick={share}>
-          <Share2 size={18} /> Bagikan ke grup
-        </Button>
-      </motion.div>
     </motion.div>
   )
 }

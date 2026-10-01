@@ -1,13 +1,14 @@
 import { AnimatePresence, motion, MotionConfig, type Variants } from 'motion/react'
 import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
-import { calculate } from '../domain/calculate'
+import { calculate, itemsSubtotal } from '../domain/calculate'
 import { LAST_STEP, stepBlocker } from '../domain/steps'
 import { ChargesStep } from '../features/charges/ChargesStep'
 import { ItemsStep } from '../features/items/ItemsStep'
 import { PeopleStep } from '../features/people/PeopleStep'
 import { celebrate } from '../features/result/celebrate'
 import { ResultStep } from '../features/result/ResultStep'
+import { shareBill } from '../features/result/shareBill'
 import { useBill } from '../state/useBill'
 import { AppToaster } from '../ui'
 import { AppHeader } from './AppHeader'
@@ -45,32 +46,34 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 
-  const reset = () =>
-    toast('Mulai tagihan baru?', {
-      description: 'Semua nama & pesanan akan dihapus.',
+  const isEmpty = !bill.title && bill.people.length === 0 && bill.items.length === 0
+
+  // Langsung dikosongkan tanpa konfirmasi; salah pencet cukup diurungkan dari toast.
+  const reset = () => {
+    const prev = { bill, step }
+    dispatch({ type: 'reset' })
+    go(0)
+    toast('Tagihan dikosongkan', {
+      duration: 6000,
       action: {
-        label: 'Hapus',
+        label: 'Urungkan',
         onClick: () => {
-          const prev = { bill, step }
-          dispatch({ type: 'reset' })
-          go(0)
-          toast.success('Tagihan baru siap', {
-            action: {
-              label: 'Urungkan',
-              onClick: () => {
-                dispatch({ type: 'replace', bill: prev.bill })
-                go(prev.step)
-              },
-            },
-          })
+          dispatch({ type: 'replace', bill: prev.bill })
+          go(prev.step)
         },
       },
     })
+  }
 
   return (
     <MotionConfig reducedMotion="user">
       <div className="grain relative mx-auto flex min-h-dvh max-w-lg flex-col">
-        <AppHeader title={bill.title} onTitleChange={(title) => dispatch({ type: 'title', title })} onReset={reset}>
+        <AppHeader
+          title={bill.title}
+          onTitleChange={(title) => dispatch({ type: 'title', title })}
+          onReset={reset}
+          canReset={!isEmpty}
+        >
           <StepNav step={step} onSelect={tryGo} />
         </AppHeader>
 
@@ -93,7 +96,14 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        <BottomBar step={step} total={result.total} onBack={() => go(step - 1)} onNext={() => tryGo(step + 1)} onEditItems={() => go(1)} />
+        <BottomBar
+          step={step}
+          subtotal={itemsSubtotal(bill.items)}
+          total={result.total}
+          onBack={() => go(step - 1)}
+          onNext={() => tryGo(step + 1)}
+          onShare={() => void shareBill(bill, result)}
+        />
       </div>
 
       <AppToaster />

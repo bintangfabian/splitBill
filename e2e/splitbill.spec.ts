@@ -49,7 +49,7 @@ async function seed(page: Page) {
 }
 
 async function readShared(page: Page) {
-  await page.getByRole('button', { name: /Bagikan ke grup/ }).click()
+  await page.locator('footer').getByRole('button', { name: 'Bagikan', exact: true }).click()
   await expect(page.getByText('Rincian disalin')).toBeVisible()
   return page.evaluate(() => navigator.clipboard.readText())
 }
@@ -72,10 +72,13 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
   await addItem(page, { name: 'Ayam Bakar', price: 40000, who: ['Rina'] })
   await expect(page.getByText('Subtotal (3 menu)')).toBeVisible()
   await expect(page.getByRole('button', { name: /Ayam Bakar/ })).toContainText('Rina')
+  // Sebelum pajak diatur, bar bawah menampilkan subtotal yang sama dengan daftar pesanan.
+  await expect(page.locator('footer')).toContainText('Subtotal')
+  await expect(page.locator('footer')).toContainText('Rp 105.000')
 
   await next(page)
   await expectStep(page, 'Pajak')
-  await expect(page.locator('footer')).toContainText('Total sementara')
+  await expect(page.locator('footer').getByText('Total', { exact: true })).toBeVisible()
   await expect(page.locator('footer')).toContainText('Rp 121.275')
 
   await next(page)
@@ -144,14 +147,14 @@ test('urungkan reset mengembalikan data dan langkah terakhir', async ({ page }) 
   await next(page)
   await addItem(page, { name: 'Bakso', price: 20000, who: 'semua' })
 
-  await page.getByRole('button', { name: 'Tagihan baru' }).click()
-  await page.getByRole('button', { name: 'Hapus', exact: true }).click()
+  await page.getByRole('button', { name: 'Kosongkan tagihan' }).click()
   await expect(page.getByText('Belum ada yang ikut nih')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Kosongkan tagihan' })).toBeDisabled()
 
   await page.getByRole('button', { name: 'Urungkan' }).click()
   await expectStep(page, 'Pesan')
   await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
-  await expect(page.locator('footer')).toContainText('Rp 23.100')
+  await expect(page.locator('footer')).toContainText('Rp 20.000')
 })
 
 test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel', async ({ page }) => {
@@ -241,4 +244,19 @@ test('info rekening pembayar ikut dibagikan dan tetap tersimpan', async ({ page 
   await page.reload()
   await openStep(page, 'Hasil')
   await expect(page.getByLabel('Rekening atau e-wallet pembayar')).toHaveValue('BCA 1234567890 a.n. Budi')
+})
+
+test.describe('layar kecil (320 px)', () => {
+  test.use({ viewport: { width: 320, height: 568 } })
+
+  test('total di bar bawah tidak terpotong', async ({ page }) => {
+    await seed(page)
+    for (const step of ['Pajak', 'Hasil']) {
+      await openStep(page, step)
+      const amount = page.locator('footer').getByText('Rp 115.500')
+      await expect(amount).toBeVisible()
+      const clipped = await amount.evaluate((el) => el.scrollWidth > el.clientWidth + 1)
+      expect(clipped, `total terpotong di langkah ${step}`).toBe(false)
+    }
+  })
 })

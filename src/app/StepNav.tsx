@@ -9,7 +9,7 @@ export function StepNav({ step, onSelect }: { step: number; onSelect: (step: num
           key={label}
           onClick={() => onSelect(i)}
           aria-current={i === step ? 'step' : undefined}
-          className="relative flex-1 rounded-full py-2 text-xs font-bold"
+          className="relative h-10 flex-1 rounded-full text-xs font-bold"
         >
           {i === step && (
             <motion.span

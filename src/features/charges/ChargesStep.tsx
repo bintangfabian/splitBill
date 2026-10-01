@@ -15,7 +15,7 @@ function Presets({ label, values, current, onPick }: { label: string; values: nu
           onClick={() => onPick(v)}
           aria-label={`${label} ${v}%`}
           aria-pressed={current === v}
-          className={`rounded-full py-1 text-xs font-bold transition-colors ${current === v ? 'bg-ink text-bg' : 'bg-surface-2 text-muted'}`}
+          className={`h-10 rounded-full text-xs font-bold transition-colors ${current === v ? 'bg-ink text-bg' : 'bg-surface-2 text-muted'}`}
         >
           {v}%
         </motion.button>

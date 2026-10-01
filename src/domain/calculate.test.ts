@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Bill, Charges, Item, Person } from './bill'
-import { calculate } from './calculate'
+import { calculate, itemsSubtotal } from './calculate'
 
 const person = (id: string): Person => ({ id, name: id, color: '#000' })
 const item = (id: string, price: number, sharedBy: string[], qty = 1): Item => ({ id, name: id, price, qty, sharedBy })
@@ -15,6 +15,13 @@ const charges = (patch: Partial<Charges> = {}): Charges => ({
 })
 const bill = (patch: Partial<Bill>): Bill => ({ title: '', people: [], items: [], charges: charges(), payerId: null, paymentInfo: '', ...patch })
 const totals = (b: Bill) => calculate(b).perPerson.map((r) => r.total)
+
+describe('itemsSubtotal', () => {
+  it('menjumlahkan harga × jumlah semua menu, termasuk yang belum ada pemesannya', () => {
+    expect(itemsSubtotal([item('a', 25000, ['x'], 2), item('b', 5000, [])])).toBe(55000)
+    expect(itemsSubtotal([])).toBe(0)
+  })
+})
 
 describe('calculate', () => {
   it('membagi menu bersama rata, lalu menambah service dan pajak setelah service', () => {
