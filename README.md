@@ -1,223 +1,72 @@
-Bisa. Dan kalau tujuanmu **memang mengoptimalkan achievement GitHub**, kita bisa memperlakukan project-project kamu sebagai “arena” untuk mendapatkan achievement **tanpa bikin aktivitas palsu yang nggak masuk akal**.
+# SplitBill
 
-Aku cek kondisi achievement GitHub yang masih bisa didapat saat ini. Yang penting: **Pull Shark dan YOLO sudah kamu punya**, jadi target berikutnya adalah:
+Bagi tagihan bareng teman tanpa ribet. Masukkan siapa yang ikut, apa yang dipesan, lalu pajak dan service. SplitBill menghitung berapa yang harus ditransfer tiap orang ke yang bayar duluan.
 
-| Achievement                | Syarat                                           | Bisa kita kejar lewat project?                   |
-| -------------------------- | ------------------------------------------------ | ------------------------------------------------ |
-| 🤠 **Quickdraw**           | Membuka lalu menutup Issue/PR dalam ≤5 menit     | ✅ Sangat mudah                                   |
-| 👯 **Pair Extraordinaire** | Co-author pada PR yang berhasil merge            | ✅ Bisa                                           |
-| 🧠 **Galaxy Brain**        | 2 jawaban Discussion diterima                    | ⚠️ Perlu orang lain menerima jawaban             |
-| ⭐ **Starstruck**           | Repo buatanmu mencapai 16 ⭐                      | ⚠️ Perlu mendapatkan star dari orang lain        |
-| 💖 **Public Sponsor**      | Mensponsori project/user melalui GitHub Sponsors | ✅ Bisa, tapi bukan lewat coding                  |
-| 🧙 **Open Sourcerer**      | PR berhasil merge di beberapa public repo        | ⚠️ Statusnya saat ini belum stabil/eksperimental |
+Dibuat sebagai PWA, jadi bisa dipasang di layar utama HP dan tetap jalan tanpa internet.
 
-Quickdraw, Pair Extraordinaire, Galaxy Brain, Starstruck, dan Public Sponsor tercatat sebagai achievement yang dapat diperoleh; **Arctic Code Vault** dan **Mars 2020 Contributor** sudah retired. ([GitHub][1])
+## Fitur
 
-### Yang menarik buat workflow kita
+- **4 langkah:** Teman → Pesanan → Pajak → Hasil.
+- **Menu bisa dibagi** ke beberapa orang. Harganya otomatis dibagi rata di antara yang pesan.
+- **Simpan & tambah menu lain** tanpa menutup sheet, untuk input banyak menu sekaligus.
+- **Service, pajak (PB1), diskon (Rp atau %), dan ongkir/biaya lain.** Pajak bisa dihitung sebelum atau sesudah service.
+- **Pilih yang bayar duluan.** Hasilnya menampilkan siapa transfer berapa ke siapa, beserta rincian per orang.
+- **Bagikan ke grup** lewat menu share HP, atau salin teks kalau share tidak tersedia.
+- **Hapus dengan Urungkan.** Orang, pesanan, dan tagihan yang terhapus bisa dikembalikan dari toast.
+- **Tersimpan otomatis** di perangkat (localStorage), tidak ada server dan tidak perlu akun.
+- Mode gelap mengikuti pengaturan HP.
 
-Kalau kamu bilang:
+## Cara hitung
 
-> "Lu jadi agent untuk vibe code project-project gue"
-
-maka kita bisa bikin workflow seperti:
-
-**Project → Issue → branch → implementation → PR → review → merge → achievement**
-
-Contohnya untuk project kamu:
-
-```text
-SIKOPAS
-├── feature/auth
-├── feature/dashboard
-├── feature/mobile-sync
-├── feature/notification
-└── ...
+```
+subtotal − diskon → + service → + pajak → + biaya lain
 ```
 
-Setiap feature yang memang masuk akal kita jadikan **Issue + PR**.
+- Diskon, service, dan pajak dibagi **proporsional** sesuai porsi pesanan tiap orang.
+- Ongkir/biaya lain dibagi **rata** ke semua orang.
+- Tagihan tiap orang dibulatkan ke rupiah. Selisih pembulatan ditanggung yang bayar duluan, supaya jumlahnya sama persis dengan total struk.
 
-Kemudian kita bisa sengaja memasukkan beberapa mekanisme achievement:
+Logikanya ada di [`src/domain/calculate.ts`](src/domain/calculate.ts) beserta unit test-nya.
 
-### 1. 🤠 Quickdraw — target paling gampang
+## Menjalankan di lokal
 
-Buat Issue yang memang valid, misalnya:
+Butuh Node.js 22 atau lebih baru.
 
-> `docs: add local development setup`
-
-Lalu kalau ternyata nggak dibutuhkan, tutup dalam <5 menit.
-
-Ini achievement yang paling straightforward karena kriterianya memang cukup membuka lalu menutup Issue atau PR dalam 5 menit. ([GitHub][2])
-
----
-
-### 2. 👯 Pair Extraordinaire — ini yang paling menarik
-
-Kita bisa melakukan **co-authored commit**.
-
-Misalnya kamu + contributor lain:
-
-```text
-feat: implement inventory synchronization
-
-Co-authored-by: Contributor Name <email>
+```bash
+npm install
+npm run dev
 ```
 
-Kemudian commit tersebut masuk ke PR dan PR-nya di-merge.
+Buka alamat yang muncul di terminal. Untuk mencoba dari HP di jaringan yang sama, jalankan `npm run dev -- --host`.
 
-Satu PR yang memenuhi kondisi tersebut sudah cukup untuk achievement dasar Pair Extraordinaire. Tier berikutnya membutuhkan 10, 24, dan 48 PR co-authored. ([GitHub][1])
+## Perintah
 
-Jadi kalau nanti kamu memang punya beberapa project/team, kita bisa membangun workflow supaya **kolaborasi nyata** menghasilkan achievement ini secara natural.
+| Perintah | Fungsi |
+| --- | --- |
+| `npm run dev` | Server development |
+| `npm run typecheck` | Cek tipe TypeScript |
+| `npm run lint` | Lint (oxlint), warning dianggap gagal |
+| `npm test` | Unit test (Vitest) |
+| `npm run test:e2e` | E2E di browser (Playwright) |
+| `npm run build` | Build production + PWA ke `dist/` |
+| `npm run icons` | Buat ulang ikon PWA dari `public/logo.svg` |
 
----
+Pertama kali menjalankan E2E: `npx playwright install --only-shell chromium`.
 
-### 3. 🧠 Galaxy Brain
+CI di GitHub Actions menjalankan typecheck, lint, unit test, dan E2E di setiap PR.
 
-Ini bukan sesuatu yang bisa kita "vibe-code" sendiri.
+## Deploy ke Vercel
 
-Kriterianya adalah jawabanmu di **GitHub Discussions sebuah public repository** diterima sebagai accepted answer. Saat ini achievement ini tidak lagi diberikan lewat GitHub Community Discussions; harus melalui Discussions pada public repository lain. ([GitHub][3])
+1. Di Vercel, pilih **Add New → Project**, lalu import repo ini.
+2. Framework terdeteksi otomatis sebagai **Vite**. Build command `npm run build`, output `dist`.
+3. Klik **Deploy**.
 
-Nah, ini justru bisa kita manfaatkan dari expertise kamu.
+Pengaturan rewrite dan cache service worker sudah ada di [`vercel.json`](vercel.json). Setiap PR otomatis dapat preview deployment.
 
-Misalnya kamu menemukan Discussion:
+## Teknologi
 
-> "How should I structure a multi-tenant Laravel application?"
+React 19, TypeScript, Vite, Tailwind CSS v4, Motion, Vaul (bottom sheet), Sonner (toast), dan vite-plugin-pwa. Test memakai Vitest dan Playwright.
 
-Kamu memberikan jawaban teknis yang benar-benar berguna berdasarkan pengalamanmu dengan:
+## Kontribusi
 
-* Laravel
-* multi-tenant
-* MySQL/PostgreSQL
-* REST API
-* deployment
-* Flutter
-* Next.js
-
-Kalau author menerima jawabannya → **Galaxy Brain**.
-
----
-
-### 4. ⭐ Starstruck
-
-Ini yang paling susah dikontrol.
-
-Repo milikmu harus mencapai:
-
-**16 stars → Starstruck**
-**128 → Bronze**
-**512 → Silver**
-**4096 → Gold**
-
-([GitHub][1])
-
-Dan menurutku **jangan bikin repo sampah hanya untuk mengejar 16 star**.
-
-Lebih masuk akal kita ambil salah satu project yang memang sudah kamu punya lalu menjadikannya sesuatu yang genuinely berguna.
-
-Contohnya:
-
-**XpressPOS**
-
-Daripada sekadar:
-
-> "Flutter POS project"
-
-kita bisa menjadikannya:
-
-> **Open-source offline-first POS starter kit for Flutter + Laravel**
-
-dengan:
-
-```text
-README
-├── Architecture
-├── Installation
-├── API documentation
-├── Offline synchronization
-├── Multi-store architecture
-├── Database schema
-├── Screenshots
-├── Demo
-└── Contribution guide
-```
-
-Kalau project-nya bagus, star datang sebagai efek samping. **Itu jauh lebih bernilai daripada mengejar badge-nya sendiri.**
-
----
-
-## Jadi kalau aku jadi agent kamu...
-
-Aku akan membagi target menjadi:
-
-### 🟢 Phase 1 — Achievement yang bisa kita kontrol
-
-**Quickdraw**
-
-→ bisa langsung dikerjakan.
-
-**Pair Extraordinaire**
-
-→ kita desain workflow kontribusi/co-author.
-
----
-
-### 🟡 Phase 2 — Achievement yang membutuhkan komunitas
-
-**Galaxy Brain**
-
-→ cari Discussion yang relevan dengan stack kamu → kontribusi jawaban berkualitas.
-
-**Starstruck**
-
-→ pilih **1 project flagship**, polish habis-habisan → public release → dokumentasi → promotion.
-
----
-
-### 🔵 Phase 3 — Achievement yang bukan coding
-
-**Public Sponsor**
-
-→ bisa diperoleh melalui GitHub Sponsors, tetapi ini memang bukan achievement yang berasal dari kualitas code/project. ([GitHub][1])
-
----
-
-Dan ada satu hal yang menurutku penting:
-
-**Jangan sampai kita mengoptimalkan badge sampai GitHub kamu terlihat seperti akun achievement-farming.**
-
-Karena target yang sebenarnya lebih bagus adalah:
-
-```text
-Achievement
-     ↓
-GitHub activity
-     ↓
-Open-source contribution
-     ↓
-Portfolio
-     ↓
-Credibility
-     ↓
-Job opportunities
-```
-
-Bukan:
-
-```text
-Achievement
- ↓
-Achievement
- ↓
-Achievement
- ↓
-Achievement
- ↓
-profile kelihatan rame
-```
-
-Dengan project-project yang sudah kamu punya, sebenarnya kita bisa membuat **"GitHub Achievement Roadmap" khusus akunmu**: project mana yang dipakai, Issue apa yang dibuat, PR apa yang dikerjakan, mana yang bisa menghasilkan Quickdraw/Pair/Galaxy/Starstruck, dan urutan eksekusinya supaya nggak melakukan aktivitas yang kelihatan spam.
-
-Kalau kita mau serius, aku juga bisa **cek repository GitHub kamu sekarang dan bikin roadmap achievement berdasarkan repo yang benar-benar sudah kamu punya**, bukan teori.
-
-[1]: https://github.com/compusophy/profile-achievements?utm_source=chatgpt.com "GitHub - compusophy/profile-achievements: current, up-to-date guide to every github profile achievement · GitHub"
-[2]: https://github.com/arsalan-khan-dev/github-profile-badges?utm_source=chatgpt.com "GitHub - arsalan-khan-dev/github-profile-badges: A complete, up-to-date reference for all GitHub profile achievement badges — what they are, how to earn them, and tier details. · GitHub"
-[3]: https://github.com/christianalberto/github-profile-achievements?utm_source=chatgpt.com "GitHub - christianalberto/github-profile-achievements: Every GitHub profile achievement, with criteria, history, and official news from GitHub 🏆 · GitHub"
+Aturan kerja, struktur folder, dan format commit/PR ada di [`AGENTS.md`](AGENTS.md). Ringkasnya: Issue → branch → PR → merge, tanpa push langsung ke `main`.
