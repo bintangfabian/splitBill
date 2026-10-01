@@ -10,7 +10,7 @@ export function Avatar({ name, color, size = 40, selected }: { name: string; col
         height: size,
         background: color,
         fontSize: size * 0.36,
-        boxShadow: selected ? `0 0 0 3px var(--bg), 0 0 0 5px var(--ink)` : undefined,
+        boxShadow: selected ? `0 0 0 3px var(--surface), 0 0 0 5px var(--ink)` : undefined,
       }}
     >
       {initials(name) || '?'}

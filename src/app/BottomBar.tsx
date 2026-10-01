@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Share2 } from 'lucide-react'
 import { LAST_STEP } from '../domain/steps'
 import { AnimatedRupiah, Button } from '../ui'
@@ -26,16 +25,12 @@ export function BottomBar({
 
   return (
     <footer className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-lg px-4 pb-safe">
-      <div className="flex items-center gap-2 rounded-[1.8rem] border border-line bg-surface/85 p-2 shadow-[0_12px_40px_-12px_rgba(0,0,0,.25)] backdrop-blur-xl">
-        <AnimatePresence initial={false}>
-          {step > 0 && (
-            <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 'auto', opacity: 1 }} exit={{ width: 0, opacity: 0 }}>
-              <Button variant="soft" onClick={onBack} aria-label="Kembali" className="!px-4">
-                <ArrowLeft size={18} />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex items-center gap-2 rounded-sheet border border-line bg-surface p-2 shadow-[0_8px_24px_-8px_rgba(0,0,0,.18)]">
+        {step > 0 && (
+          <Button variant="soft" onClick={onBack} aria-label="Kembali" className="!px-3.5">
+            <ArrowLeft size={18} />
+          </Button>
+        )}
         <div className="min-w-0 flex-1 pl-2">
           <p className="text-[11px] font-semibold text-muted">{showTotal ? 'Total' : 'Subtotal'}</p>
           <AnimatedRupiah

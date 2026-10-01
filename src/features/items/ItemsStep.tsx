@@ -8,6 +8,7 @@ import { rupiah } from '../../lib/format'
 import { uid } from '../../lib/id'
 import type { Action } from '../../state/billReducer'
 import { AnimatedRupiah, Avatar, Button, ReceiptIllustration, SectionTitle } from '../../ui'
+import { duration, spring } from '../../ui/motion'
 import { ItemForm } from './ItemForm'
 
 // Bottom sheet (Vaul + Radix) baru dimuat saat langkah Pesanan dibuka.
@@ -38,58 +39,46 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
 
   return (
     <div>
-      <SectionTitle eyebrow="Langkah 2" title={<>Pesan <span className="font-serif font-normal italic">apa aja?</span></>}>
-        Satu menu bisa dibagi ke beberapa orang, harganya otomatis dibagi rata.
-      </SectionTitle>
+      <SectionTitle title="Apa saja yang dipesan?">Ketuk menu untuk mengubah. Menu yang dipesan beberapa orang dibagi rata.</SectionTitle>
 
-      <AnimatePresence mode="popLayout" initial={false}>
-        {bill.items.length === 0 ? (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center pt-2 pb-6 text-center"
-          >
-            <ReceiptIllustration className="w-60" />
-            <p className="mt-2 font-semibold">Struknya masih kosong</p>
-            <p className="mt-1 max-w-60 text-sm text-muted">Tambahin menu satu-satu sesuai struk, lalu pilih siapa yang pesan.</p>
-          </motion.div>
-        ) : (
-          <motion.ul key="list" layout className="space-y-2.5">
-            <AnimatePresence mode="popLayout">
+      {bill.items.length === 0 ? (
+        <div className="flex flex-col items-center px-6 pt-6 pb-2 text-center">
+          <ReceiptIllustration className="w-40 text-muted" />
+          <p className="mt-4 font-semibold">Struknya masih kosong</p>
+          <p className="mt-1 max-w-64 text-[15px] text-muted">Masukkan menu satu per satu sesuai struk, lalu pilih siapa yang pesan.</p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-card bg-surface">
+          <ul className="divide-y divide-line">
+            <AnimatePresence mode="popLayout" initial={false}>
               {bill.items.map((item) => {
                 const owners = item.sharedBy.map((id) => people.get(id)).filter((p) => !!p)
                 return (
                   <motion.li
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -60, transition: { duration: 0.2 } }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: duration.fast } }}
+                    transition={spring.list}
                   >
-                    <motion.button
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => edit(item)}
-                      className="flex w-full items-center gap-3 rounded-[1.4rem] bg-surface p-4 text-left"
-                    >
+                    <button onClick={() => edit(item)} className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors active:bg-surface-2">
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold">{item.name || 'Tanpa nama'}</p>
                         <p className="mt-0.5 text-sm text-muted tabular-nums">
                           {item.qty} × {rupiah(item.price)}
                         </p>
-                        <div className="mt-2.5 flex items-center">
+                        <div className="mt-2 flex items-center">
                           {owners.length === 0 ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-coral/15 px-2.5 py-1 text-xs font-semibold text-coral">
-                              <AlertCircle size={13} /> Belum ada yang pesan
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-danger">
+                              <AlertCircle size={13} aria-hidden /> Belum ada yang pesan
                             </span>
                           ) : (
                             <>
-                              <div className="flex -space-x-2">
+                              <div className="flex -space-x-1.5">
                                 {owners.slice(0, 5).map((p) => (
                                   <span key={p.id} className="inline-flex rounded-full ring-2 ring-surface">
-                                    <Avatar name={p.name} color={p.color} size={26} />
+                                    <Avatar name={p.name} color={p.color} size={24} />
                                   </span>
                                 ))}
                               </div>
@@ -101,24 +90,24 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
                           )}
                         </div>
                       </div>
-                      <p className="shrink-0 font-bold tabular-nums">{rupiah(item.price * item.qty)}</p>
-                    </motion.button>
+                      <p className="shrink-0 font-semibold tabular-nums">{rupiah(item.price * item.qty)}</p>
+                    </button>
                   </motion.li>
                 )
               })}
             </AnimatePresence>
-          </motion.ul>
-        )}
-      </AnimatePresence>
-
-      {bill.items.length > 0 && (
-        <motion.div layout className="mt-4 flex items-center justify-between rounded-[1.4rem] border border-dashed border-line px-5 py-4">
-          <span className="text-sm font-medium text-muted">Subtotal ({bill.items.length} menu)</span>
-          <AnimatedRupiah value={subtotal} className="font-bold" />
-        </motion.div>
+          </ul>
+          <div className="px-4 pb-3.5">
+            <div className="rule-dashed" />
+            <div className="flex items-center justify-between pt-3">
+              <span className="text-[15px] text-muted">Subtotal ({bill.items.length} menu)</span>
+              <AnimatedRupiah value={subtotal} className="font-bold" />
+            </div>
+          </div>
+        </div>
       )}
 
-      <Button variant="soft" className="mt-4 w-full border-2 border-dashed border-line !bg-transparent" onClick={() => edit(blank())}>
+      <Button variant={bill.items.length === 0 ? 'primary' : 'soft'} className="mt-4 w-full" onClick={() => edit(blank())}>
         <Plus size={18} /> Tambah pesanan
       </Button>
 
