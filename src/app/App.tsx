@@ -89,7 +89,7 @@ export default function App() {
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               {step === 0 && <PeopleStep bill={bill} dispatch={dispatch} />}
-              {step === 1 && <ItemsStep bill={bill} dispatch={dispatch} />}
+              {step === 1 && <ItemsStep bill={bill} result={result} dispatch={dispatch} />}
               {step === 2 && <ChargesStep bill={bill} result={result} dispatch={dispatch} />}
               {step === 3 && <ResultStep bill={bill} result={result} dispatch={dispatch} />}
             </motion.section>

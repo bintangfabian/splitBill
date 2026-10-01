@@ -100,7 +100,7 @@ test('tidak bisa lanjut sebelum ada minimal 2 orang', async ({ page }) => {
   await expectStep(page, 'ikut makan')
 })
 
-test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
+test('pesanan tanpa pemilik ditandai dan menahan langkah pajak', async ({ page }) => {
   await page.goto('/')
   await addPeople(page, 'Budi', 'Ani', 'Rina')
   await next(page)
@@ -109,11 +109,23 @@ test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
   await page.getByRole('button', { name: 'Kembali' }).click()
   await page.getByRole('button', { name: 'Hapus Budi' }).click()
   await next(page)
-  await expect(page.getByText('Belum ada yang pesan')).toBeVisible()
+  await expect(page.getByText('Belum ada yang pesan', { exact: true })).toBeVisible()
+  // Alasan langkah Pajak tertahan sudah terlihat sebelum pengguna menekan Lanjut.
+  const notice = page.locator('main').getByRole('status')
+  await expect(notice).toContainText('1 pesanan belum ada yang pesan')
 
   await next(page)
-  await expect(page.getByText('1 pesanan belum ada yang pesan')).toBeVisible()
+  await expect(page.locator('[data-sonner-toast]').getByText('1 pesanan belum ada yang pesan')).toBeVisible()
   await expectStep(page, 'Pesan')
+
+  // Setelah pemesannya dipilih lagi, pemberitahuannya hilang dan langkah Pajak terbuka.
+  await page.getByRole('button', { name: /Sate/ }).click()
+  const sheet = page.getByRole('dialog')
+  await sheet.getByRole('button', { name: 'Ani', exact: true }).click()
+  await sheet.getByRole('button', { name: /^Simpan/ }).click()
+  await expect(notice).toBeHidden()
+  await next(page)
+  await expectStep(page, 'Pajak')
 })
 
 test('data tetap ada setelah halaman dimuat ulang', async ({ page }) => {

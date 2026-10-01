@@ -3,11 +3,11 @@ import { AlertCircle, Plus } from 'lucide-react'
 import { lazy, Suspense, useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
 import type { Bill, Item } from '../../domain/bill'
-import { itemsSubtotal } from '../../domain/calculate'
+import { itemsSubtotal, type BillResult } from '../../domain/calculate'
 import { rupiah } from '../../lib/format'
 import { uid } from '../../lib/id'
 import type { Action } from '../../state/billReducer'
-import { AnimatedRupiah, Avatar, Button, ReceiptIllustration, SectionTitle } from '../../ui'
+import { AnimatedRupiah, Avatar, Button, ReceiptIllustration, SectionTitle, WorriedReceiptIllustration } from '../../ui'
 import { ItemForm } from './ItemForm'
 
 // Bottom sheet (Vaul + Radix) baru dimuat saat langkah Pesanan dibuka.
@@ -15,7 +15,7 @@ const Sheet = lazy(() => import('../../ui/Sheet').then((m) => ({ default: m.Shee
 
 const blank = (): Item => ({ id: uid(), name: '', price: 0, qty: 1, sharedBy: [] })
 
-export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<Action> }) {
+export function ItemsStep({ bill, result, dispatch }: { bill: Bill; result: BillResult; dispatch: Dispatch<Action> }) {
   const [draft, setDraft] = useState<Item | null>(null)
   const [open, setOpen] = useState(false)
   const people = new Map(bill.people.map((p) => [p.id, p]))
@@ -41,6 +41,27 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
       <SectionTitle eyebrow="Langkah 2" title={<>Pesan <span className="font-serif font-normal whitespace-nowrap italic">apa aja?</span></>}>
         Satu menu bisa dibagi ke beberapa orang, harganya otomatis dibagi rata.
       </SectionTitle>
+
+      {/* Pesanan tanpa pemilik menahan langkah Pajak, jadi alasannya ditampilkan sebelum pengguna menekan Lanjut. */}
+      <AnimatePresence initial={false}>
+        {result.unassigned > 0 && (
+          <motion.div
+            key="unassigned"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <output className="mb-3 flex items-center gap-3 rounded-[1.4rem] bg-coral/10 py-2.5 pr-4 pl-2.5">
+              <WorriedReceiptIllustration className="w-14 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-balance">{result.unassigned} pesanan belum ada yang pesan</p>
+                <p className="mt-0.5 text-xs text-pretty text-muted">Ketuk menunya, lalu pilih siapa yang pesan.</p>
+              </div>
+            </output>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence mode="popLayout" initial={false}>
         {bill.items.length === 0 ? (
