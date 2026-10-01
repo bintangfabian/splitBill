@@ -41,7 +41,7 @@ export default function App() {
     const key = JSON.stringify([bill.people, bill.items, bill.charges])
     if (key === celebrated.current) return
     celebrated.current = key
-    celebrate()
+    void celebrate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 

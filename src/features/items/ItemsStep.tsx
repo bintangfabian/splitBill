@@ -1,13 +1,16 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { AlertCircle, Plus } from 'lucide-react'
-import { useState, type Dispatch } from 'react'
+import { lazy, Suspense, useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
 import type { Bill, Item } from '../../domain/bill'
 import { rupiah } from '../../lib/format'
 import { uid } from '../../lib/id'
 import type { Action } from '../../state/billReducer'
-import { AnimatedRupiah, Avatar, Button, ReceiptIllustration, SectionTitle, Sheet } from '../../ui'
+import { AnimatedRupiah, Avatar, Button, ReceiptIllustration, SectionTitle } from '../../ui'
 import { ItemForm } from './ItemForm'
+
+// Bottom sheet (Vaul + Radix) baru dimuat saat langkah Pesanan dibuka.
+const Sheet = lazy(() => import('../../ui/Sheet').then((m) => ({ default: m.Sheet })))
 
 const blank = (): Item => ({ id: uid(), name: '', price: 0, qty: 1, sharedBy: [] })
 
@@ -118,25 +121,27 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
         <Plus size={18} /> Tambah pesanan
       </Button>
 
-      <Sheet
-        open={open}
-        onOpenChange={setOpen}
-        title={bill.items.some((i) => i.id === draft?.id) ? 'Ubah pesanan' : 'Pesanan baru'}
-      >
-        {draft && (
-          <ItemForm
-            key={draft.id}
-            initial={draft}
-            bill={bill}
-            isNew={!bill.items.some((i) => i.id === draft.id)}
-            onSave={(item) => {
-              dispatch({ type: 'upsertItem', item })
-              setOpen(false)
-            }}
-            onDelete={() => remove(draft.id)}
-          />
-        )}
-      </Sheet>
+      <Suspense fallback={null}>
+        <Sheet
+          open={open}
+          onOpenChange={setOpen}
+          title={bill.items.some((i) => i.id === draft?.id) ? 'Ubah pesanan' : 'Pesanan baru'}
+        >
+          {draft && (
+            <ItemForm
+              key={draft.id}
+              initial={draft}
+              bill={bill}
+              isNew={!bill.items.some((i) => i.id === draft.id)}
+              onSave={(item) => {
+                dispatch({ type: 'upsertItem', item })
+                setOpen(false)
+              }}
+              onDelete={() => remove(draft.id)}
+            />
+          )}
+        </Sheet>
+      </Suspense>
     </div>
   )
 }
