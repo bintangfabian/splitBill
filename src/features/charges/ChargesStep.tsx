@@ -1,9 +1,9 @@
 import { motion } from 'motion/react'
 import type { Dispatch, ReactNode } from 'react'
-import type { BillResult } from '../lib/calc'
-import type { Action } from '../lib/store'
-import type { Bill } from '../lib/types'
-import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, Toggle } from './ui'
+import type { Bill } from '../../domain/bill'
+import type { BillResult } from '../../domain/calculate'
+import type { Action } from '../../state/billReducer'
+import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, Toggle } from '../../ui'
 
 function Presets({ values, current, onPick }: { values: number[]; current: number; onPick: (v: number) => void }) {
   return (

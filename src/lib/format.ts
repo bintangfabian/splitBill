@@ -14,5 +14,3 @@ export const initials = (name: string) =>
     .slice(0, 2)
     .map((w) => [...graphemes.segment(w)][0]?.segment.toUpperCase() ?? '')
     .join('')
-
-export const uid = () => Math.random().toString(36).slice(2, 10)

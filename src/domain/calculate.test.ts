@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { calculate } from './calc'
-import type { Bill, Charges, Item, Person } from './types'
+import type { Bill, Charges, Item, Person } from './bill'
+import { calculate } from './calculate'
 
 const person = (id: string): Person => ({ id, name: id, color: '#000' })
 const item = (id: string, price: number, sharedBy: string[], qty = 1): Item => ({ id, name: id, price, qty, sharedBy })

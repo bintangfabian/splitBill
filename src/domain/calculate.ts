@@ -1,4 +1,4 @@
-import type { Bill } from './types'
+import type { Bill } from './bill'
 
 export type PersonLine = { itemId: string; name: string; amount: number; split: number }
 

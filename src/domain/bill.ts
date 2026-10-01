@@ -24,3 +24,11 @@ export type Bill = {
   charges: Charges
   payerId: string | null
 }
+
+export const emptyBill = (): Bill => ({
+  title: '',
+  people: [],
+  items: [],
+  charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0 },
+  payerId: null,
+})

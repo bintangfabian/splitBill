@@ -60,3 +60,30 @@ Jangan push langsung ke `main`. Co-author baru terhitung untuk achievement kalau
 Pertama kali menjalankan E2E di mesin baru: `npx playwright install --only-shell chromium`.
 
 Sebelum push, pastikan `npm test` dan `npm run test:e2e` lolos. Perilaku baru wajib disertai test: logika di unit test, alur pengguna di E2E. CI di GitHub Actions menjalankan semuanya di setiap PR.
+
+## 6. Arsitektur
+
+```
+src/
+  domain/    logika murni: tipe tagihan, hitung, validasi langkah, teks bagikan
+  state/     reducer, penyimpanan localStorage, hook useBill
+  lib/       utilitas umum: format rupiah, id
+  ui/        komponen dasar tanpa logika bisnis (Button, Sheet, input, ilustrasi)
+  features/  satu folder per langkah: people, items, charges, result
+  app/       komposisi: App, header, navigasi langkah, bar bawah
+e2e/         skenario Playwright
+```
+
+| Layer | Boleh import |
+| --- | --- |
+| `app` | semua layer |
+| `features` | `ui`, `state`, `domain`, `lib` |
+| `state` | `domain`, `lib` |
+| `ui` | `lib` |
+| `domain` | `lib` |
+| `lib` | (tidak ada) |
+
+- `domain` dan `lib` tidak boleh import React, supaya bisa dites dengan unit test biasa.
+- `ui` tidak tahu apa-apa soal tagihan. Kalau komponen butuh data tagihan, tempatnya di `features`.
+- Logika baru (hitungan, validasi, format) masuk ke `domain` atau `lib` beserta unit test-nya. Komponen cukup menampilkan data dan memanggil `dispatch`.
+- Test ditaruh di sebelah filenya: `calculate.ts` → `calculate.test.ts`.

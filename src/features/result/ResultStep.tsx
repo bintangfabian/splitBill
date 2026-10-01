@@ -2,12 +2,12 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight, ChevronDown, Share2 } from 'lucide-react'
 import { useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
-import type { BillResult } from '../lib/calc'
-import { rupiah } from '../lib/format'
-import type { Action } from '../lib/store'
-import type { Bill } from '../lib/types'
-import { DoneIllustration } from './Illustrations'
-import { AnimatedRupiah, Avatar, Button } from './ui'
+import type { Bill } from '../../domain/bill'
+import type { BillResult } from '../../domain/calculate'
+import { buildShareText } from '../../domain/share'
+import { rupiah } from '../../lib/format'
+import type { Action } from '../../state/billReducer'
+import { AnimatedRupiah, Avatar, Button, DoneIllustration } from '../../ui'
 
 const stagger = {
   hidden: {},
@@ -16,24 +16,6 @@ const stagger = {
 const rise = {
   hidden: { opacity: 0, y: 24, scale: 0.97 },
   show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
-}
-
-export function buildShareText(bill: Bill, result: BillResult) {
-  const payer = bill.people.find((p) => p.id === bill.payerId)
-  const lines = [
-    `🧾 ${bill.title || 'Split Bill'}`,
-    `Total: ${rupiah(result.total)}${payer ? ` — dibayar ${payer.name}` : ''}`,
-    '',
-    ...result.perPerson.map((r) => {
-      const p = bill.people.find((x) => x.id === r.personId)!
-      const tag = r.personId === bill.payerId ? ' (yang bayar)' : ''
-      return `• ${p.name}${tag}: ${rupiah(r.total)}`
-    }),
-    '',
-    `Service ${bill.charges.servicePct}% · Pajak ${bill.charges.taxPct}%`,
-    'Dihitung pakai SplitBill ✨',
-  ]
-  return lines.join('\n')
 }
 
 export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: BillResult; dispatch: Dispatch<Action> }) {
