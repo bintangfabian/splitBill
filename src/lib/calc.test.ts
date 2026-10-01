@@ -1,0 +1,123 @@
+import { describe, expect, it } from 'vitest'
+import { calculate } from './calc'
+import type { Bill, Charges, Item, Person } from './types'
+
+const person = (id: string): Person => ({ id, name: id, color: '#000' })
+const item = (id: string, price: number, sharedBy: string[], qty = 1): Item => ({ id, name: id, price, qty, sharedBy })
+const charges = (patch: Partial<Charges> = {}): Charges => ({
+  servicePct: 0,
+  taxPct: 0,
+  taxAfterService: true,
+  discount: 0,
+  discountType: 'amount',
+  extraFee: 0,
+  ...patch,
+})
+const bill = (patch: Partial<Bill>): Bill => ({ title: '', people: [], items: [], charges: charges(), payerId: null, ...patch })
+const totals = (b: Bill) => calculate(b).perPerson.map((r) => r.total)
+
+describe('calculate', () => {
+  it('membagi menu bersama rata, lalu menambah service dan pajak setelah service', () => {
+    const result = calculate(
+      bill({
+        people: [person('a'), person('b'), person('c')],
+        items: [item('nasi', 25000, ['a', 'b'], 2), item('esteh', 5000, ['a', 'b', 'c'], 3), item('ayam', 40000, ['c'])],
+        charges: charges({ servicePct: 5, taxPct: 10 }),
+        payerId: 'a',
+      }),
+    )
+
+    expect(result.subtotal).toBe(105000)
+    expect(result.service).toBe(5250)
+    expect(result.tax).toBe(11025)
+    expect(result.total).toBe(121275)
+    expect(result.perPerson.map((r) => r.total)).toEqual([34650, 34650, 51975])
+    expect(result.perPerson[0].lines).toEqual([
+      { itemId: 'nasi', name: 'nasi', amount: 25000, split: 2 },
+      { itemId: 'esteh', name: 'esteh', amount: 5000, split: 3 },
+    ])
+  })
+
+  it('menghitung pajak dari subtotal saja kalau taxAfterService mati', () => {
+    const result = calculate(
+      bill({
+        people: [person('a')],
+        items: [item('x', 100000, ['a'])],
+        charges: charges({ servicePct: 5, taxPct: 10, taxAfterService: false }),
+      }),
+    )
+    expect(result.service).toBe(5000)
+    expect(result.tax).toBe(10000)
+    expect(result.total).toBe(115000)
+  })
+
+  it('membagi diskon nominal sesuai porsi pesanan sebelum service', () => {
+    const b = bill({
+      people: [person('a'), person('b')],
+      items: [item('x', 60000, ['a']), item('y', 40000, ['b'])],
+      charges: charges({ discount: 10000, servicePct: 10 }),
+    })
+    const result = calculate(b)
+    expect(result.discount).toBeCloseTo(10000)
+    expect(result.perPerson.map((r) => r.discount)).toEqual([expect.closeTo(6000), expect.closeTo(4000)])
+    expect(totals(b)).toEqual([59400, 39600])
+  })
+
+  it('mendukung diskon persen', () => {
+    const b = bill({
+      people: [person('a')],
+      items: [item('x', 100000, ['a'])],
+      charges: charges({ discount: 20, discountType: 'pct', taxPct: 10 }),
+    })
+    expect(totals(b)).toEqual([88000])
+  })
+
+  it('membatasi diskon supaya tidak melebihi subtotal', () => {
+    const result = calculate(
+      bill({ people: [person('a')], items: [item('x', 50000, ['a'])], charges: charges({ discount: 80000 }) }),
+    )
+    expect(result.discount).toBe(50000)
+    expect(result.total).toBe(0)
+  })
+
+  it('membagi biaya lain rata ke semua orang, termasuk yang tidak memesan', () => {
+    const b = bill({
+      people: [person('a'), person('b'), person('c')],
+      items: [item('x', 30000, ['a', 'b'])],
+      charges: charges({ extraFee: 15000 }),
+    })
+    expect(totals(b)).toEqual([20000, 20000, 5000])
+    expect(calculate(b).extra).toBe(15000)
+  })
+
+  it('membebankan selisih pembulatan ke pembayar', () => {
+    const b = bill({ people: [person('a'), person('b'), person('c')], items: [item('x', 10000, ['a', 'b', 'c'])], payerId: 'b' })
+    expect(totals(b)).toEqual([3333, 3334, 3333])
+    expect(calculate(b).total).toBe(10000)
+  })
+
+  it('membebankan selisih pembulatan ke orang pertama kalau belum ada pembayar', () => {
+    const b = bill({ people: [person('a'), person('b'), person('c')], items: [item('x', 10000, ['a', 'b', 'c'])] })
+    expect(totals(b)).toEqual([3334, 3333, 3333])
+  })
+
+  it('tidak menghitung pesanan tanpa pemilik dan mencatatnya di unassigned', () => {
+    const result = calculate(
+      bill({ people: [person('a')], items: [item('x', 10000, ['a']), item('y', 5000, []), item('z', 7000, ['hantu'])] }),
+    )
+    expect(result.subtotal).toBe(10000)
+    expect(result.unassigned).toBe(2)
+  })
+
+  it('mengabaikan id di sharedBy yang orangnya sudah dihapus', () => {
+    const result = calculate(bill({ people: [person('a'), person('b')], items: [item('x', 10000, ['a', 'hantu'])] }))
+    expect(result.perPerson.map((r) => r.subtotal)).toEqual([10000, 0])
+    expect(result.unassigned).toBe(0)
+  })
+
+  it('mengembalikan total 0 kalau belum ada orang', () => {
+    const result = calculate(bill({ items: [item('x', 10000, [])], charges: charges({ extraFee: 10000 }) }))
+    expect(result.total).toBe(0)
+    expect(result.perPerson).toEqual([])
+  })
+})

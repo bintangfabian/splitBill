@@ -5,3 +5,5 @@ dev-dist
 .vercel
 *.local
 *.tsbuildinfo
+test-results
+playwright-report
