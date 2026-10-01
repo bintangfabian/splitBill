@@ -59,7 +59,7 @@ src/
   domain/    logika murni: hitung tagihan, validasi langkah, teks bagikan
   state/     reducer, penyimpanan localStorage, hook useBill
   lib/       format rupiah, id
-  ui/        komponen dasar, token motion, ilustrasi
+  ui/        komponen dasar dan ilustrasi
   features/  satu folder per langkah: people, items, charges, result
   app/       App, header, navigasi langkah, bar bawah
 e2e/         skenario Playwright
@@ -69,8 +69,7 @@ Aturan import antar layer ada di [`AGENTS.md`](AGENTS.md#6-arsitektur).
 
 ## Kontribusi
 
-- **Aturan kerja** (branch, commit, PR, co-author, test): [`AGENTS.md`](AGENTS.md)
-- **Panduan tampilan** (warna, tipografi, motion, ilustrasi, copy): [`DESIGN.md`](DESIGN.md)
+- **Aturan kerja** (branch, commit, PR, co-author, test, struktur folder): [`AGENTS.md`](AGENTS.md)
 - Alurnya Issue → branch → PR → merge commit. CI menjalankan typecheck, lint, unit test, dan E2E di setiap PR.
 
 ## Deploy
