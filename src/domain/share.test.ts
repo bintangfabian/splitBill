@@ -44,6 +44,11 @@ describe('buildShareText', () => {
     expect(nominal).toContain('Service 5% · Pajak 10% · Diskon Rp 5.000')
   })
 
+  it('menyebut pembulatan kalau dipakai', () => {
+    expect(share(bill({ charges: { ...emptyBill().charges, roundTo: 500 } }))).toContain('Pajak 10% · Dibulatkan ke Rp 500')
+    expect(share(bill())).not.toContain('Dibulatkan')
+  })
+
   it('menulis rekening atau e-wallet pembayar di bawah total', () => {
     const lines = share(bill({ paymentInfo: '  BCA 1234567890 a.n. Budi ' })).split('\n')
     expect(lines.slice(1, 3)).toEqual(['Total: Rp 23.100 — dibayar Budi', 'Transfer ke: BCA 1234567890 a.n. Budi'])
