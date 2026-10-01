@@ -47,6 +47,13 @@ Issue → branch (`feat/…`, `fix/…`, `docs/…`) → PR → merge, satu PR u
 
 Jangan push langsung ke `main`. Co-author baru terhitung untuk achievement kalau commit-nya masuk lewat PR yang di-merge.
 
+Setiap mulai sesi, termasuk sesi AI agent:
+
+1. Sinkron dulu: `git switch main && git pull`.
+2. Baca roadmap beserta komentarnya: `gh issue view 8 --comments`. Komentar terakhir berisi langkah berikutnya dari pasangan.
+3. Ambil satu item yang belum dicentang, lalu kerjakan lewat alur di atas.
+4. Setelah PR di-merge, centang itemnya di #8.
+
 ## 5. Perintah
 
 | Perintah | Fungsi |
@@ -66,7 +73,7 @@ Sebelum push, pastikan `npm run lint`, `npm test`, dan `npm run test:e2e` lolos.
 
 ```
 src/
-  domain/    logika murni: tipe tagihan, hitung, validasi langkah, teks bagikan
+  domain/    logika murni: tipe tagihan, hitung, validasi langkah, teks bagikan, ekspresi ilustrasi
   state/     reducer, penyimpanan localStorage, hook useBill
   lib/       utilitas umum: format rupiah, id
   ui/        komponen dasar tanpa logika bisnis (Button, Sheet, input, ilustrasi)
@@ -88,3 +95,12 @@ e2e/         skenario Playwright
 - `ui` tidak tahu apa-apa soal tagihan. Kalau komponen butuh data tagihan, tempatnya di `features`.
 - Logika baru (hitungan, validasi, format) masuk ke `domain` atau `lib` beserta unit test-nya. Komponen cukup menampilkan data dan memanggil `dispatch`.
 - Test ditaruh di sebelah filenya: `calculate.ts` → `calculate.test.ts`.
+
+## 7. Desain
+
+Karakter tampilan SplitBill dipertahankan: kartu bento warna-warni, ilustrasi berwajah, aksen serif miring di judul, logo struk lime-lavender, dan confetti. Desainnya pernah diganti total di #18 lalu dikembalikan di #20, jadi:
+
+- Yang boleh langsung dikerjakan: memoles detail seperti kontras, jarak, teks yang terpotong, dan konsistensi gerak.
+- Mengganti elemen identitas (warna, logo, ilustrasi, font, gaya kartu) harus ditanyakan ke pasangan dulu, dengan screenshot sebelum dan sesudah.
+- Cek tampilan di lebar 320 px dan 390 px, mode terang dan gelap.
+- Ilustrasi ada di `src/ui/Illustrations.tsx`. Ekspresi wajah struk dipilih oleh `billMood` di `src/domain/mood.ts`.
