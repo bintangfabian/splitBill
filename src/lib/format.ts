@@ -7,10 +7,10 @@ export const rupiah = (n: number) => idr.format(Math.round(n)).replace(/\s/g, ' 
 export const thousands = (n: number) => (n ? plain.format(n) : '')
 export const parseNumber = (s: string) => Number(s.replace(/[^\d]/g, '')) || 0
 
-export const initials = (name: string) =>
+export const initials = (name: string, max = 2) =>
   name
     .trim()
     .split(/\s+/)
-    .slice(0, 2)
+    .slice(0, max)
     .map((w) => [...graphemes.segment(w)][0]?.segment.toUpperCase() ?? '')
     .join('')

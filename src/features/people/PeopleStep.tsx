@@ -32,7 +32,7 @@ export function PeopleStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<
 
   return (
     <div>
-      <SectionTitle eyebrow="Langkah 1" title={<>Siapa aja yang <span className="font-serif font-normal italic">ikut makan?</span></>} />
+      <SectionTitle eyebrow="Langkah 1" title={<>Siapa aja yang <span className="font-serif font-normal whitespace-nowrap italic">ikut makan?</span></>} />
 
       <form
         onSubmit={(e) => {

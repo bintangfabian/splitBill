@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { Minus, Plus, Trash2, Users } from 'lucide-react'
+import { Check, Minus, Plus, Trash2, Users } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import type { Bill, Item } from '../../domain/bill'
@@ -103,6 +103,7 @@ export function ItemForm({
               >
                 <Avatar name={p.name} color={p.color} size={28} />
                 {p.name}
+                {on && <Check size={14} strokeWidth={3} aria-hidden />}
               </motion.button>
             )
           })}

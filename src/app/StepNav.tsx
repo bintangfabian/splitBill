@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { motion } from 'motion/react'
 import { STEPS } from '../domain/steps'
 
@@ -18,8 +19,10 @@ export function StepNav({ step, onSelect }: { step: number; onSelect: (step: num
               transition={{ type: 'spring', stiffness: 420, damping: 34 }}
             />
           )}
-          <span className={`relative transition-colors ${i === step ? 'text-bg' : i < step ? 'text-ink' : 'text-muted'}`}>
-            {i < step ? '✓ ' : ''}
+          <span
+            className={`relative inline-flex items-center justify-center gap-1 transition-colors ${i === step ? 'text-bg' : i < step ? 'text-ink' : 'text-muted'}`}
+          >
+            {i < step && <Check size={12} strokeWidth={3} aria-hidden />}
             {label}
           </span>
         </button>

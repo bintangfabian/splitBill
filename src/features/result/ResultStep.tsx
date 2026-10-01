@@ -28,7 +28,7 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
         <div>
           <p className="text-xs font-bold tracking-[0.18em] text-muted uppercase">Langkah 4</p>
           <h2 className="text-[2rem] leading-[1.05] font-extrabold tracking-tight">
-            Beres, <span className="font-serif font-normal italic">tinggal transfer!</span>
+            Beres, <span className="font-serif font-normal italic min-[360px]:whitespace-nowrap">tinggal transfer!</span>
           </h2>
         </div>
       </motion.div>
@@ -49,13 +49,13 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
           </p>
         </motion.div>
 
-        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#C3B1E1] p-5 text-[#141414]">
+        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#C3B1E1] p-4 text-[#141414] min-[360px]:p-5">
           <p className="text-xs font-semibold opacity-70">Pajak + service</p>
-          <AnimatedRupiah value={result.tax + result.service} className="mt-1 block text-lg font-extrabold" />
+          <AnimatedRupiah value={result.tax + result.service} className="mt-1 block text-[clamp(15px,4.6vw,18px)] font-extrabold whitespace-nowrap" />
         </motion.div>
-        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#B8E0D2] p-5 text-[#141414]">
+        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#B8E0D2] p-4 text-[#141414] min-[360px]:p-5">
           <p className="text-xs font-semibold opacity-70">Ditagih ke teman</p>
-          <AnimatedRupiah value={owed} className="mt-1 block text-lg font-extrabold" />
+          <AnimatedRupiah value={owed} className="mt-1 block text-[clamp(15px,4.6vw,18px)] font-extrabold whitespace-nowrap" />
         </motion.div>
 
         <motion.div variants={rise} className="col-span-2 rounded-[1.6rem] bg-surface p-5">
@@ -67,7 +67,7 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
                 whileTap={{ scale: 0.9 }}
                 onClick={() => dispatch({ type: 'payer', id: p.id })}
                 aria-pressed={p.id === bill.payerId}
-                className="flex w-16 shrink-0 flex-col items-center gap-1.5"
+                className="flex w-[72px] shrink-0 flex-col items-center gap-1.5"
               >
                 <Avatar name={p.name} color={p.color} size={48} selected={p.id === bill.payerId} />
                 <span className={`line-clamp-2 w-full text-center text-xs leading-tight font-semibold wrap-break-word ${p.id === bill.payerId ? 'text-ink' : 'text-muted'}`}>
@@ -115,20 +115,22 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
                 <Avatar name={p.name} color={p.color} size={42} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{p.name}</p>
-                  <p className="flex items-center gap-1 text-xs text-muted">
+                  <p className="truncate text-xs text-muted">
                     {isPayer ? (
                       <span className="font-semibold text-violet">Yang bayar duluan</span>
                     ) : payer ? (
                       <>
-                        Transfer ke <ArrowRight size={11} /> <b className="text-ink">{payer.name}</b>
+                        {/* Di layar sempit cukup panah + nama supaya nama tujuan tetap terbaca. */}
+                        <span className="max-[359px]:sr-only">Transfer ke </span>
+                        <ArrowRight size={11} className="inline align-[-1px]" aria-hidden /> <b className="text-ink">{payer.name}</b>
                       </>
                     ) : (
                       `${r.lines.length} menu`
                     )}
                   </p>
                 </div>
-                <AnimatedRupiah value={r.total} className="font-extrabold" />
-                <motion.span animate={{ rotate: open ? 180 : 0 }} className="text-muted">
+                <AnimatedRupiah value={r.total} className="shrink-0 font-extrabold" />
+                <motion.span animate={{ rotate: open ? 180 : 0 }} className="shrink-0 text-muted">
                   <ChevronDown size={18} />
                 </motion.span>
               </button>
