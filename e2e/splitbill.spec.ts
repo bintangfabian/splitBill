@@ -18,7 +18,7 @@ async function addPeople(page: Page, ...names: string[]) {
 async function addItem(page: Page, { name, price, qty = 1, who }: NewItem) {
   await page.getByRole('button', { name: 'Tambah pesanan' }).click()
   const sheet = page.getByRole('dialog')
-  await sheet.getByPlaceholder('Nama menu, mis. Nasi Goreng').fill(name)
+  await sheet.getByLabel('Nama menu').fill(name)
   await sheet.getByLabel('Harga satuan').fill(String(price))
   for (let i = 1; i < qty; i++) await sheet.getByRole('button', { name: 'Tambah jumlah' }).click()
   if (who === 'semua') await sheet.getByRole('button', { name: 'Semua' }).click()
@@ -242,6 +242,21 @@ test('simpan & tambah menu lain tanpa menutup sheet', async ({ page }) => {
   await expect(page.getByText('Subtotal (2 menu)')).toBeVisible()
   await expect(page.getByRole('button', { name: /Kopi Susu/ })).toContainText('Budi')
   await expect(page.getByRole('button', { name: /Roti Bakar/ })).toContainText('Ani')
+})
+
+test('isian di sheet pesanan punya label yang tetap terlihat setelah diisi', async ({ page }) => {
+  await seed(page)
+  await page.getByRole('button', { name: 'Tambah pesanan' }).click()
+  const sheet = page.getByRole('dialog')
+  await sheet.getByLabel('Nama menu').fill('Kopi Susu')
+  await sheet.getByLabel('Harga satuan').fill('18000')
+
+  for (const label of ['Nama menu', 'Harga satuan', 'Jumlah']) {
+    await expect(sheet.getByText(label, { exact: true })).toBeVisible()
+  }
+  // Mengetuk label memindahkan kursor ke isiannya.
+  await sheet.getByText('Harga satuan', { exact: true }).click()
+  await expect(sheet.getByLabel('Harga satuan')).toBeFocused()
 })
 
 test('info rekening pembayar ikut dibagikan dan tetap tersimpan', async ({ page }) => {

@@ -4,6 +4,7 @@ export function MoneyInput({
   value,
   onChange,
   label,
+  showLabel = false,
   placeholder = '0',
   prefix = 'Rp',
   suffix,
@@ -13,15 +14,15 @@ export function MoneyInput({
   onChange: (n: number) => void
   /** Nama input untuk screen reader. */
   label: string
+  /** Tampilkan `label` sebagai keterangan kecil di dalam kotak, untuk isian tanpa judul di luar. */
+  showLabel?: boolean
   placeholder?: string
   prefix?: string
   suffix?: string
   className?: string
 }) {
-  return (
-    <label
-      className={`flex items-center gap-2 rounded-2xl bg-surface-2 px-4 py-3.5 ring-ink/80 transition focus-within:ring-2 ${className}`}
-    >
+  const field = (
+    <>
       {prefix && <span className="text-sm font-semibold text-muted">{prefix}</span>}
       <input
         inputMode="numeric"
@@ -32,6 +33,19 @@ export function MoneyInput({
         className="w-full min-w-0 bg-transparent text-lg font-semibold tabular-nums outline-none placeholder:text-muted"
       />
       {suffix && <span className="text-sm font-semibold text-muted">{suffix}</span>}
+    </>
+  )
+  const box = `rounded-2xl bg-surface-2 px-4 ring-ink/80 transition focus-within:ring-2 ${className}`
+
+  if (!showLabel) return <label className={`flex items-center gap-2 py-3.5 ${box}`}>{field}</label>
+
+  return (
+    <label className={`flex flex-col pt-2.5 pb-3 ${box}`}>
+      {/* Nama untuk screen reader sudah dari aria-label, jadi keterangannya disembunyikan dari pembaca layar. */}
+      <span className="text-[11px] font-semibold text-muted" aria-hidden>
+        {label}
+      </span>
+      <span className="flex flex-1 items-center gap-2">{field}</span>
     </label>
   )
 }
