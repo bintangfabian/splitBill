@@ -30,7 +30,7 @@ export function BottomBar({
           )}
         </AnimatePresence>
         <div className="min-w-0 flex-1 pl-2">
-          <p className="text-[11px] font-semibold text-muted">Total sementara</p>
+          <p className="text-[11px] font-semibold text-muted">{step === LAST_STEP ? 'Total' : 'Total sementara'}</p>
           <AnimatedRupiah value={total} className="block truncate font-extrabold" />
         </div>
         {step < LAST_STEP ? (

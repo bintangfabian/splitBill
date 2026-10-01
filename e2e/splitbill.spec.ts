@@ -2,8 +2,10 @@ import { expect, test, type Page } from '@playwright/test'
 
 type NewItem = { name: string; price: number; qty?: number; who: string[] | 'semua' }
 
-const heading = (page: Page) => page.getByRole('heading', { level: 2 })
+// Saat transisi, judul langkah lama dan baru sempat tampil bersamaan, jadi cari judul yang spesifik.
+const expectStep = (page: Page, title: string) => expect(page.getByRole('heading', { level: 2, name: new RegExp(title) })).toBeVisible()
 const next = (page: Page) => page.getByRole('button', { name: /Lanjut|Lihat hasil/ }).click()
+const openStep = (page: Page, name: string) => page.locator('nav').getByRole('button', { name: new RegExp(name) }).click()
 
 async function addPeople(page: Page, ...names: string[]) {
   const input = page.getByPlaceholder('Ketik nama teman…')
@@ -17,40 +19,70 @@ async function addItem(page: Page, { name, price, qty = 1, who }: NewItem) {
   await page.getByRole('button', { name: 'Tambah pesanan' }).click()
   const sheet = page.getByRole('dialog')
   await sheet.getByPlaceholder('Nama menu, mis. Nasi Goreng').fill(name)
-  await sheet.getByPlaceholder('0').fill(String(price))
-  for (let i = 1; i < qty; i++) await sheet.getByRole('button', { name: 'Tambah', exact: true }).click()
+  await sheet.getByLabel('Harga satuan').fill(String(price))
+  for (let i = 1; i < qty; i++) await sheet.getByRole('button', { name: 'Tambah jumlah' }).click()
   if (who === 'semua') await sheet.getByRole('button', { name: 'Semua' }).click()
-  else for (const w of who) await sheet.getByRole('button', { name: new RegExp(`${w}$`) }).click()
+  else for (const w of who) await sheet.getByRole('button', { name: w, exact: true }).click()
   await sheet.getByRole('button', { name: /^Tambahkan/ }).click()
   await expect(sheet).toBeHidden()
 }
 
-test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({ page, context }) => {
+/** Isi tagihan langsung lewat localStorage untuk skenario yang tidak menguji pengisian awal. */
+async function seed(page: Page) {
+  await page.goto('/')
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'splitbill:v1',
+      JSON.stringify({
+        title: '',
+        people: [
+          { id: 'a', name: 'Budi', color: '#FFB4A2' },
+          { id: 'b', name: 'Ani', color: '#B8E0D2' },
+        ],
+        items: [{ id: 'x', name: 'Iga Bakar', price: 100000, qty: 1, sharedBy: ['a', 'b'] }],
+        charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0 },
+        payerId: 'a',
+      }),
+    ),
+  )
+  await page.reload()
+}
+
+async function readShared(page: Page) {
+  await page.getByRole('button', { name: /Bagikan ke grup/ }).click()
+  await expect(page.getByText('Rincian disalin')).toBeVisible()
+  return page.evaluate(() => navigator.clipboard.readText())
+}
+
+test.beforeEach(async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  // Paksa jalur salin ke clipboard supaya hasilnya bisa diperiksa.
+  // Paksa jalur salin ke clipboard supaya teks yang dibagikan bisa diperiksa.
   await page.addInitScript(() => Object.defineProperty(navigator, 'share', { value: undefined }))
+})
+
+test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({ page }) => {
   await page.goto('/')
 
   await addPeople(page, 'Budi', 'Ani', 'Rina')
   await next(page)
-  await expect(heading(page)).toContainText('Pesan')
+  await expectStep(page, 'Pesan')
 
   await addItem(page, { name: 'Nasi Goreng', price: 25000, qty: 2, who: ['Budi', 'Ani'] })
   await addItem(page, { name: 'Es Teh', price: 5000, qty: 3, who: 'semua' })
   await addItem(page, { name: 'Ayam Bakar', price: 40000, who: ['Rina'] })
   await expect(page.getByText('Subtotal (3 menu)')).toBeVisible()
+  await expect(page.getByRole('button', { name: /Ayam Bakar/ })).toContainText('Rina')
 
   await next(page)
-  await expect(heading(page)).toContainText('Pajak')
+  await expectStep(page, 'Pajak')
+  await expect(page.locator('footer')).toContainText('Total sementara')
   await expect(page.locator('footer')).toContainText('Rp 121.275')
 
   await next(page)
-  await expect(heading(page)).toContainText('Beres')
-  await expect(page.getByText('Total tagihan')).toBeVisible()
+  await expectStep(page, 'Beres')
+  await expect(page.locator('footer').getByText('Total', { exact: true })).toBeVisible()
 
-  await page.getByRole('button', { name: /Bagikan ke grup/ }).click()
-  await expect(page.getByText('Rincian disalin')).toBeVisible()
-  const shared = await page.evaluate(() => navigator.clipboard.readText())
+  const shared = await readShared(page)
   expect(shared).toContain('Total: Rp 121.275 — dibayar Budi')
   expect(shared).toContain('• Budi (yang bayar): Rp 34.650')
   expect(shared).toContain('• Ani: Rp 34.650')
@@ -62,7 +94,7 @@ test('tidak bisa lanjut sebelum ada minimal 2 orang', async ({ page }) => {
   await addPeople(page, 'Budi')
   await next(page)
   await expect(page.getByText('Tambah minimal 2 orang dulu')).toBeVisible()
-  await expect(heading(page)).toContainText('ikut makan')
+  await expectStep(page, 'ikut makan')
 })
 
 test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
@@ -78,7 +110,7 @@ test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
 
   await next(page)
   await expect(page.getByText('1 pesanan belum ada yang pesan')).toBeVisible()
-  await expect(heading(page)).toContainText('Pesan')
+  await expectStep(page, 'Pesan')
 })
 
 test('data tetap ada setelah halaman dimuat ulang', async ({ page }) => {
@@ -88,7 +120,7 @@ test('data tetap ada setelah halaman dimuat ulang', async ({ page }) => {
   await addItem(page, { name: 'Bakso', price: 20000, who: 'semua' })
 
   await page.reload()
-  await expect(heading(page)).toContainText('Pesan')
+  await expectStep(page, 'Pesan')
   await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
 })
 
@@ -106,7 +138,7 @@ test('hapus pesanan bisa diurungkan', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
 })
 
-test('reset tagihan bisa diurungkan', async ({ page }) => {
+test('urungkan reset mengembalikan data dan langkah terakhir', async ({ page }) => {
   await page.goto('/')
   await addPeople(page, 'Budi', 'Ani')
   await next(page)
@@ -117,6 +149,54 @@ test('reset tagihan bisa diurungkan', async ({ page }) => {
   await expect(page.getByText('Belum ada yang ikut nih')).toBeVisible()
 
   await page.getByRole('button', { name: 'Urungkan' }).click()
-  await expect(page.getByText('Budi', { exact: true })).toBeVisible()
+  await expectStep(page, 'Pesan')
+  await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
   await expect(page.locator('footer')).toContainText('Rp 23.100')
+})
+
+test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel', async ({ page }) => {
+  await seed(page)
+  await openStep(page, 'Pajak')
+
+  await page.getByRole('button', { name: 'Service 10%' }).click()
+  await page.getByLabel('Diskon (Rp)').fill('20000')
+  await page.getByLabel('Ongkir atau biaya lain').fill('10000')
+  // (100.000 − 20.000) + service 10% + pajak 10% dari (80.000 + 8.000) + ongkir 10.000
+  await expect(page.locator('footer')).toContainText('Rp 106.800')
+
+  await page.getByRole('switch', { name: /Pajak dihitung setelah service/ }).click()
+  await expect(page.getByRole('switch', { name: /Pajak dihitung setelah service/ })).toHaveAttribute('aria-checked', 'false')
+  await expect(page.locator('footer')).toContainText('Rp 106.000')
+
+  await next(page)
+  const shared = await readShared(page)
+  expect(shared).toContain('Service 10% · Pajak 10% · Diskon Rp 20.000 · Biaya lain Rp 10.000')
+})
+
+test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __confetti: number }
+    w.__confetti = 0
+    new MutationObserver((ms) =>
+      ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeName === 'CANVAS' && w.__confetti++)),
+    ).observe(document, { childList: true, subtree: true })
+  })
+  const confettiCount = () => page.evaluate(() => (window as unknown as { __confetti: number }).__confetti)
+  const confettiDone = () => expect(page.locator('canvas')).toHaveCount(0, { timeout: 10_000 })
+
+  await seed(page)
+  await openStep(page, 'Hasil')
+  await expect.poll(confettiCount).toBe(1)
+  await confettiDone()
+
+  await openStep(page, 'Pajak')
+  await openStep(page, 'Hasil')
+  await expectStep(page, 'Beres')
+  await page.waitForTimeout(500)
+  expect(await confettiCount()).toBe(1)
+
+  await openStep(page, 'Pajak')
+  await page.getByRole('button', { name: 'Pajak 11%' }).click()
+  await openStep(page, 'Hasil')
+  await expect.poll(confettiCount).toBe(2)
 })

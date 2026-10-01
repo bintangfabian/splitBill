@@ -1,30 +1,31 @@
-import confetti from 'canvas-confetti'
-import { AnimatePresence, motion, MotionConfig } from 'motion/react'
-import { useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, motion, MotionConfig, type Variants } from 'motion/react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { calculate } from '../domain/calculate'
 import { LAST_STEP, stepBlocker } from '../domain/steps'
 import { ChargesStep } from '../features/charges/ChargesStep'
 import { ItemsStep } from '../features/items/ItemsStep'
 import { PeopleStep } from '../features/people/PeopleStep'
+import { celebrate } from '../features/result/celebrate'
 import { ResultStep } from '../features/result/ResultStep'
 import { useBill } from '../state/useBill'
 import { AppToaster } from '../ui'
 import { AppHeader } from './AppHeader'
 import { BottomBar } from './BottomBar'
 import { StepNav } from './StepNav'
+import { useStepper } from './useStepper'
+
+// Langkah lama dan baru beranimasi bersamaan (popLayout), jadi konten baru langsung muncul.
+const stepVariants: Variants = {
+  enter: (d: number) => ({ x: d * 24, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (d: number) => ({ x: d * -24, opacity: 0 }),
+}
 
 export default function App() {
   const [bill, dispatch] = useBill()
-  const [step, setStep] = useState(() => (bill.items.length ? 1 : 0))
-  const [dir, setDir] = useState(1)
+  const { step, dir, go } = useStepper(bill.items.length ? 1 : 0)
   const result = useMemo(() => calculate(bill), [bill])
-
-  const go = (to: number) => {
-    setDir(to > step ? 1 : -1)
-    setStep(to)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
 
   // Maju hanya kalau syarat langkahnya terpenuhi; pesan kesalahan tampil sebagai toast.
   const tryGo = (to: number) => {
@@ -33,10 +34,15 @@ export default function App() {
     go(to)
   }
 
+  // Confetti sekali per isi tagihan, bukan setiap kali bolak-balik ke Hasil.
+  const celebrated = useRef('')
   useEffect(() => {
     if (step !== LAST_STEP) return
-    const colors = ['#D4F35B', '#7C5CFF', '#FF7A59', '#FFD97D', '#B8E0D2']
-    confetti({ particleCount: 90, spread: 75, origin: { y: 0.25 }, colors, disableForReducedMotion: true })
+    const key = JSON.stringify([bill.people, bill.items, bill.charges])
+    if (key === celebrated.current) return
+    celebrated.current = key
+    celebrate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 
   const reset = () =>
@@ -45,11 +51,17 @@ export default function App() {
       action: {
         label: 'Hapus',
         onClick: () => {
-          const prev = bill
+          const prev = { bill, step }
           dispatch({ type: 'reset' })
           go(0)
           toast.success('Tagihan baru siap', {
-            action: { label: 'Urungkan', onClick: () => dispatch({ type: 'replace', bill: prev }) },
+            action: {
+              label: 'Urungkan',
+              onClick: () => {
+                dispatch({ type: 'replace', bill: prev.bill })
+                go(prev.step)
+              },
+            },
           })
         },
       },
@@ -63,19 +75,15 @@ export default function App() {
         </AppHeader>
 
         <main className="relative z-10 flex-1 overflow-x-clip px-5 pt-4 pb-36">
-          <AnimatePresence mode="wait" custom={dir} initial={false}>
+          <AnimatePresence mode="popLayout" custom={dir} initial={false}>
             <motion.section
               key={step}
               custom={dir}
-              variants={{
-                enter: (d: number) => ({ x: d * 48, opacity: 0, filter: 'blur(4px)' }),
-                center: { x: 0, opacity: 1, filter: 'blur(0px)' },
-                exit: (d: number) => ({ x: d * -48, opacity: 0, filter: 'blur(4px)' }),
-              }}
+              variants={stepVariants}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               {step === 0 && <PeopleStep bill={bill} dispatch={dispatch} />}
               {step === 1 && <ItemsStep bill={bill} dispatch={dispatch} />}

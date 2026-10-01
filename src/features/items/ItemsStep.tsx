@@ -89,9 +89,10 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
                                   </span>
                                 ))}
                               </div>
-                              {owners.length > 1 && (
-                                <span className="ml-2 text-xs font-medium text-muted">dibagi {owners.length}</span>
-                              )}
+                              <span className="ml-2 truncate text-xs font-medium text-muted">
+                                {owners.length > 1 ? `dibagi ${owners.length}` : owners[0].name}
+                              </span>
+                              {owners.length > 1 && <span className="sr-only">{owners.map((p) => p.name).join(', ')}</span>}
                             </>
                           )}
                         </div>

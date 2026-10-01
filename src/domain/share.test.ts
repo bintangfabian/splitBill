@@ -36,4 +36,18 @@ describe('buildShareText', () => {
     const text = share(bill({ title: '', payerId: null }))
     expect(text.split('\n').slice(0, 2)).toEqual(['🧾 Split Bill', 'Total: Rp 23.100'])
   })
+
+  it('menyebut diskon dan biaya lain yang dipakai', () => {
+    const text = share(bill({ charges: { ...emptyBill().charges, discount: 10, discountType: 'pct', extraFee: 12000 } }))
+    expect(text).toContain('Service 5% · Pajak 10% · Diskon 10% · Biaya lain Rp 12.000')
+    const nominal = share(bill({ charges: { ...emptyBill().charges, discount: 5000 } }))
+    expect(nominal).toContain('Service 5% · Pajak 10% · Diskon Rp 5.000')
+  })
+
+  it('tidak menulis baris biaya kalau tanpa service, pajak, diskon, dan biaya lain', () => {
+    const text = share(bill({ charges: { ...emptyBill().charges, servicePct: 0, taxPct: 0 } }))
+    expect(text).not.toContain('Service')
+    expect(text).not.toContain('Pajak')
+    expect(text.endsWith('• Ani: Rp 10.000\n\nDihitung pakai SplitBill ✨')).toBe(true)
+  })
 })
