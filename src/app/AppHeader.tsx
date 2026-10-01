@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { SplitMark } from '../ui'
@@ -17,24 +18,25 @@ export function AppHeader({
   children: ReactNode
 }) {
   return (
-    <header className="sticky top-0 z-20 bg-bg px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
+    <header className="sticky top-0 z-20 bg-bg/80 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-3 backdrop-blur-xl">
       <div className="flex items-center gap-3">
-        <SplitMark className="size-8 shrink-0 text-ink" />
+        <SplitMark className="size-10 shrink-0" />
         <input
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Nama tagihan"
-          className="h-11 min-w-0 flex-1 bg-transparent text-[17px] font-bold outline-none placeholder:font-semibold placeholder:text-muted"
+          placeholder="Makan di mana nih?"
+          className="min-w-0 flex-1 bg-transparent text-lg font-bold tracking-tight outline-none placeholder:text-muted"
           aria-label="Nama tagihan"
         />
-        <button
+        <motion.button
+          whileTap={{ rotate: -180, scale: 0.9 }}
           onClick={onReset}
           disabled={!canReset}
-          className="grid size-11 place-items-center rounded-full text-muted transition-colors active:bg-surface-2 disabled:opacity-40"
+          className="grid size-10 place-items-center rounded-full bg-surface text-muted transition-opacity disabled:opacity-40"
           aria-label="Kosongkan tagihan"
         >
-          <RotateCcw size={18} />
-        </button>
+          <RotateCcw size={17} />
+        </motion.button>
       </div>
       {children}
     </header>

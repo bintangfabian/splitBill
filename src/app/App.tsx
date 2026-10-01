@@ -1,16 +1,16 @@
 import { AnimatePresence, motion, MotionConfig, type Variants } from 'motion/react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { calculate, itemsSubtotal } from '../domain/calculate'
-import { stepBlocker } from '../domain/steps'
+import { LAST_STEP, stepBlocker } from '../domain/steps'
 import { ChargesStep } from '../features/charges/ChargesStep'
 import { ItemsStep } from '../features/items/ItemsStep'
 import { PeopleStep } from '../features/people/PeopleStep'
+import { celebrate } from '../features/result/celebrate'
 import { ResultStep } from '../features/result/ResultStep'
 import { shareBill } from '../features/result/shareBill'
 import { useBill } from '../state/useBill'
 import { AppToaster } from '../ui'
-import { duration, ease } from '../ui/motion'
 import { AppHeader } from './AppHeader'
 import { BottomBar } from './BottomBar'
 import { StepNav } from './StepNav'
@@ -18,9 +18,9 @@ import { useStepper } from './useStepper'
 
 // Langkah lama dan baru beranimasi bersamaan (popLayout), jadi konten baru langsung muncul.
 const stepVariants: Variants = {
-  enter: (d: number) => ({ x: d * 16, opacity: 0 }),
+  enter: (d: number) => ({ x: d * 24, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (d: number) => ({ x: d * -16, opacity: 0 }),
+  exit: (d: number) => ({ x: d * -24, opacity: 0 }),
 }
 
 export default function App() {
@@ -34,6 +34,17 @@ export default function App() {
     if (msg) return toast.warning(msg)
     go(to)
   }
+
+  // Confetti sekali per isi tagihan, bukan setiap kali bolak-balik ke Hasil.
+  const celebrated = useRef('')
+  useEffect(() => {
+    if (step !== LAST_STEP) return
+    const key = JSON.stringify([bill.people, bill.items, bill.charges])
+    if (key === celebrated.current) return
+    celebrated.current = key
+    void celebrate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   const isEmpty = !bill.title && bill.people.length === 0 && bill.items.length === 0
 
@@ -56,7 +67,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative mx-auto flex min-h-dvh max-w-lg flex-col">
+      <div className="grain relative mx-auto flex min-h-dvh max-w-lg flex-col">
         <AppHeader
           title={bill.title}
           onTitleChange={(title) => dispatch({ type: 'title', title })}
@@ -66,7 +77,7 @@ export default function App() {
           <StepNav step={step} onSelect={tryGo} />
         </AppHeader>
 
-        <main className="relative flex-1 overflow-x-clip px-5 pt-3 pb-36">
+        <main className="relative z-10 flex-1 overflow-x-clip px-5 pt-4 pb-36">
           <AnimatePresence mode="popLayout" custom={dir} initial={false}>
             <motion.section
               key={step}
@@ -75,7 +86,7 @@ export default function App() {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: duration.base, ease: ease.out }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               {step === 0 && <PeopleStep bill={bill} dispatch={dispatch} />}
               {step === 1 && <ItemsStep bill={bill} dispatch={dispatch} />}

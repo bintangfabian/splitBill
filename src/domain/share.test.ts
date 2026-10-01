@@ -27,7 +27,7 @@ describe('buildShareText', () => {
         '• Ani: Rp 11.550',
         '',
         'Service 5% · Pajak 10%',
-        'Dihitung pakai SplitBill',
+        'Dihitung pakai SplitBill ✨',
       ].join('\n'),
     )
   })
@@ -58,6 +58,6 @@ describe('buildShareText', () => {
     const text = share(bill({ charges: { ...emptyBill().charges, servicePct: 0, taxPct: 0 } }))
     expect(text).not.toContain('Service')
     expect(text).not.toContain('Pajak')
-    expect(text.endsWith('• Ani: Rp 10.000\n\nDihitung pakai SplitBill')).toBe(true)
+    expect(text.endsWith('• Ani: Rp 10.000\n\nDihitung pakai SplitBill ✨')).toBe(true)
   })
 })

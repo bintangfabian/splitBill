@@ -1,54 +1,36 @@
 import { motion } from 'motion/react'
-import type { Dispatch } from 'react'
-import type { Bill, Charges } from '../../domain/bill'
+import type { Dispatch, ReactNode } from 'react'
+import type { Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
 import type { Action } from '../../state/billReducer'
 import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, Toggle } from '../../ui'
-import { duration, press } from '../../ui/motion'
 
-/** Satu baris persen: label, pilihan cepat, dan isian angka di kanan. */
-function PercentRow({
-  label,
-  name,
-  value,
-  presets,
-  onChange,
-}: {
-  label: string
-  /** nama singkat untuk screen reader, mis. "Pajak" untuk label "Pajak (PB1)" */
-  name: string
-  value: number
-  presets: number[]
-  onChange: (v: number) => void
-}) {
+function Presets({ label, values, current, onPick }: { label: string; values: number[]; current: number; onPick: (v: number) => void }) {
   return (
-    <div className="flex items-center justify-between gap-3 p-4">
-      <div className="min-w-0">
-        <p className="font-semibold">{label}</p>
-        <div className="mt-2 flex gap-1.5">
-          {presets.map((v) => (
-            <motion.button
-              key={v}
-              whileTap={press}
-              transition={{ duration: duration.fast }}
-              onClick={() => onChange(v)}
-              aria-label={`${name} ${v}%`}
-              aria-pressed={value === v}
-              className={`h-10 min-w-12 rounded-full px-3 text-[13px] font-semibold tabular-nums transition-colors ${value === v ? 'bg-ink text-bg' : 'bg-surface-2 text-ink'}`}
-            >
-              {v}%
-            </motion.button>
-          ))}
-        </div>
-      </div>
-      <PercentInput label={`${name} (%)`} value={value} onChange={onChange} />
+    <div className="mt-2.5 grid grid-cols-3 gap-1">
+      {values.map((v) => (
+        <motion.button
+          key={v}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onPick(v)}
+          aria-label={`${label} ${v}%`}
+          aria-pressed={current === v}
+          className={`h-10 rounded-full text-xs font-bold transition-colors ${current === v ? 'bg-ink text-bg' : 'bg-surface-2 text-muted'}`}
+        >
+          {v}%
+        </motion.button>
+      ))}
     </div>
   )
 }
 
+function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`rounded-[1.6rem] bg-surface p-5 ${className}`}>{children}</div>
+}
+
 export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: BillResult; dispatch: Dispatch<Action> }) {
   const c = bill.charges
-  const patch = (p: Partial<Charges>) => dispatch({ type: 'charges', patch: p })
+  const patch = (p: Partial<typeof c>) => dispatch({ type: 'charges', patch: p })
 
   const rows = [
     { label: 'Subtotal', value: result.subtotal, show: true },
@@ -60,30 +42,39 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
 
   return (
     <div>
-      <SectionTitle title="Pajak, service, dan diskon">Samakan dengan angka di struk.</SectionTitle>
+      <SectionTitle eyebrow="Langkah 3" title={<>Pajak & <span className="font-serif font-normal italic">service</span></>}>
+        Samain sama yang tertulis di struk ya.
+      </SectionTitle>
 
-      <div className="divide-y divide-line rounded-card bg-surface">
-        <PercentRow label="Service" name="Service" value={c.servicePct} presets={[0, 5, 10]} onChange={(servicePct) => patch({ servicePct })} />
-        <PercentRow label="Pajak (PB1)" name="Pajak" value={c.taxPct} presets={[0, 10, 11]} onChange={(taxPct) => patch({ taxPct })} />
-        <div className="px-4 py-2">
+      <div className="grid grid-cols-2 gap-3">
+        <Card>
+          <p className="mb-2 text-sm font-semibold">Service</p>
+          <PercentInput label="Service (%)" value={c.servicePct} onChange={(servicePct) => patch({ servicePct })} />
+          <Presets label="Service" values={[0, 5, 10]} current={c.servicePct} onPick={(servicePct) => patch({ servicePct })} />
+        </Card>
+        <Card>
+          <p className="mb-2 text-sm font-semibold">Pajak (PB1)</p>
+          <PercentInput label="Pajak (%)" value={c.taxPct} onChange={(taxPct) => patch({ taxPct })} />
+          <Presets label="Pajak" values={[0, 10, 11]} current={c.taxPct} onPick={(taxPct) => patch({ taxPct })} />
+        </Card>
+
+        <Card className="col-span-2">
           <Toggle
             checked={c.taxAfterService}
             onChange={(taxAfterService) => patch({ taxAfterService })}
             label={
               <>
-                <span className="font-semibold">Pajak dihitung setelah service</span>
-                <span className="block text-[13px] text-muted">Umumnya begini di restoran Indonesia</span>
+                <b className="font-semibold">Pajak dihitung setelah service</b>
+                <span className="block text-xs text-muted">Umumnya begini di restoran Indonesia</span>
               </>
             }
           />
-        </div>
-      </div>
+        </Card>
 
-      <div className="mt-3 divide-y divide-line rounded-card bg-surface">
-        <div className="space-y-2.5 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold">Diskon / promo</p>
-            <div className="w-28">
+        <Card className="col-span-2">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold">Diskon / promo</p>
+            <div className="w-32">
               <Segmented
                 id="disc"
                 value={c.discountType}
@@ -100,31 +91,30 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
           ) : (
             <PercentInput label="Diskon (%)" value={c.discount} onChange={(discount) => patch({ discount })} />
           )}
-          <p className="text-[13px] text-muted">Dipotong dari subtotal sebelum service & pajak, dibagi sesuai porsi pesanan.</p>
-        </div>
-        <div className="space-y-2.5 p-4">
-          <p className="font-semibold">Ongkir / biaya lain</p>
+          <p className="mt-2 text-xs text-muted">Dipotong dari subtotal sebelum service & pajak, dibagi sesuai porsi pesanan.</p>
+        </Card>
+
+        <Card className="col-span-2">
+          <p className="mb-2 text-sm font-semibold">Ongkir / biaya lain</p>
           <MoneyInput label="Ongkir atau biaya lain" value={c.extraFee} onChange={(extraFee) => patch({ extraFee })} />
-          <p className="text-[13px] text-muted">Dibagi rata ke semua orang.</p>
-        </div>
+          <p className="mt-2 text-xs text-muted">Dibagi rata ke semua orang.</p>
+        </Card>
       </div>
 
-      {/* Ringkasan seperti bagian bawah struk. */}
-      <div className="receipt-edge mt-3 rounded-t-card bg-surface px-4 pt-3 pb-4">
+      <motion.div layout className="mt-4 overflow-hidden rounded-[1.6rem] bg-hero p-5 text-[#F6F5F1]">
         {rows
           .filter((r) => r.show)
           .map((r) => (
-            <div key={r.label} className="flex justify-between py-1 text-[15px]">
-              <span className="text-muted">{r.label}</span>
+            <motion.div layout key={r.label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-between py-1 text-sm opacity-80">
+              <span>{r.label}</span>
               <AnimatedRupiah value={r.value} />
-            </div>
+            </motion.div>
           ))}
-        <div className="rule-dashed my-2" />
-        <div className="flex items-baseline justify-between">
-          <span className="font-semibold">Total</span>
-          <AnimatedRupiah value={result.total} className="text-xl font-bold" />
-        </div>
-      </div>
+        <motion.div layout className="mt-3 flex items-end justify-between border-t border-dashed border-white/20 pt-3">
+          <span className="text-sm font-semibold">Total</span>
+          <AnimatedRupiah value={result.total} className="text-2xl font-extrabold text-lime" />
+        </motion.div>
+      </motion.div>
     </div>
   )
 }

@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 
-/** Judul langkah. Tanpa label kecil di atasnya; navigasi langkah sudah menunjukkan posisi. */
-export function SectionTitle({ title, children }: { title: string; children?: ReactNode }) {
+export function SectionTitle({ eyebrow, title, children }: { eyebrow: string; title: ReactNode; children?: ReactNode }) {
   return (
     <div className="mb-5">
-      <h2 className="text-[26px] leading-tight font-bold tracking-[-0.02em]">{title}</h2>
-      {children && <p className="mt-1.5 text-[15px] leading-snug text-muted">{children}</p>}
+      <p className="text-xs font-bold tracking-[0.18em] text-muted uppercase">{eyebrow}</p>
+      <h2 className="mt-1 text-[2rem] leading-[1.05] font-extrabold tracking-tight">{title}</h2>
+      {children && <p className="mt-2 text-sm text-muted">{children}</p>}
     </div>
   )
 }

@@ -18,7 +18,7 @@ async function addPeople(page: Page, ...names: string[]) {
 async function addItem(page: Page, { name, price, qty = 1, who }: NewItem) {
   await page.getByRole('button', { name: 'Tambah pesanan' }).click()
   const sheet = page.getByRole('dialog')
-  await sheet.getByLabel('Nama menu').fill(name)
+  await sheet.getByPlaceholder('Nama menu, mis. Nasi Goreng').fill(name)
   await sheet.getByLabel('Harga satuan').fill(String(price))
   for (let i = 1; i < qty; i++) await sheet.getByRole('button', { name: 'Tambah jumlah' }).click()
   if (who === 'semua') await sheet.getByRole('button', { name: 'Semua' }).click()
@@ -65,7 +65,7 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
 
   await addPeople(page, 'Budi', 'Ani', 'Rina')
   await next(page)
-  await expectStep(page, 'dipesan')
+  await expectStep(page, 'Pesan')
 
   await addItem(page, { name: 'Nasi Goreng', price: 25000, qty: 2, who: ['Budi', 'Ani'] })
   await addItem(page, { name: 'Es Teh', price: 5000, qty: 3, who: 'semua' })
@@ -82,7 +82,7 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
   await expect(page.locator('footer')).toContainText('Rp 121.275')
 
   await next(page)
-  await expectStep(page, 'Rincian patungan')
+  await expectStep(page, 'Beres')
   await expect(page.locator('footer').getByText('Total', { exact: true })).toBeVisible()
 
   const shared = await readShared(page)
@@ -97,7 +97,7 @@ test('tidak bisa lanjut sebelum ada minimal 2 orang', async ({ page }) => {
   await addPeople(page, 'Budi')
   await next(page)
   await expect(page.getByText('Tambah minimal 2 orang dulu')).toBeVisible()
-  await expectStep(page, 'yang ikut')
+  await expectStep(page, 'ikut makan')
 })
 
 test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
@@ -113,7 +113,7 @@ test('pesanan tanpa pemilik menahan langkah pajak', async ({ page }) => {
 
   await next(page)
   await expect(page.getByText('1 pesanan belum ada yang pesan')).toBeVisible()
-  await expectStep(page, 'dipesan')
+  await expectStep(page, 'Pesan')
 })
 
 test('data tetap ada setelah halaman dimuat ulang', async ({ page }) => {
@@ -123,7 +123,7 @@ test('data tetap ada setelah halaman dimuat ulang', async ({ page }) => {
   await addItem(page, { name: 'Bakso', price: 20000, who: 'semua' })
 
   await page.reload()
-  await expectStep(page, 'dipesan')
+  await expectStep(page, 'Pesan')
   await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
 })
 
@@ -148,11 +148,11 @@ test('urungkan reset mengembalikan data dan langkah terakhir', async ({ page }) 
   await addItem(page, { name: 'Bakso', price: 20000, who: 'semua' })
 
   await page.getByRole('button', { name: 'Kosongkan tagihan' }).click()
-  await expect(page.getByText('Belum ada yang ditambahkan')).toBeVisible()
+  await expect(page.getByText('Belum ada yang ikut nih')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Kosongkan tagihan' })).toBeDisabled()
 
   await page.getByRole('button', { name: 'Urungkan' }).click()
-  await expectStep(page, 'dipesan')
+  await expectStep(page, 'Pesan')
   await expect(page.getByRole('button', { name: /Bakso/ })).toBeVisible()
   await expect(page.locator('footer')).toContainText('Rp 20.000')
 })
@@ -176,25 +176,32 @@ test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel
   expect(shared).toContain('Service 10% · Pajak 10% · Diskon Rp 20.000 · Biaya lain Rp 10.000')
 })
 
-test('struk tercetak sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
-  const receipt = page.locator('[data-print]')
+test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { confettiCanvasCount: number }
+    w.confettiCanvasCount = 0
+    new MutationObserver((ms) =>
+      ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeName === 'CANVAS' && w.confettiCanvasCount++)),
+    ).observe(document, { childList: true, subtree: true })
+  })
+  const confettiCount = () => page.evaluate(() => (window as unknown as { confettiCanvasCount: number }).confettiCanvasCount)
+  const confettiDone = () => expect(page.locator('canvas')).toHaveCount(0, { timeout: 10_000 })
+
   await seed(page)
-
   await openStep(page, 'Hasil')
-  await expect(receipt).toHaveAttribute('data-print', 'on')
+  await expect.poll(confettiCount).toBe(1)
+  await confettiDone()
 
-  // Tunggu struk lama benar-benar keluar; kalau kembali saat animasi keluar, instance yang sama dipakai lagi.
   await openStep(page, 'Pajak')
-  await expect(receipt).toHaveCount(0)
   await openStep(page, 'Hasil')
-  await expect(receipt).toHaveAttribute('data-print', 'off')
+  await expectStep(page, 'Beres')
+  await page.waitForTimeout(500)
+  expect(await confettiCount()).toBe(1)
 
-  // Isi tagihan berubah: struk dicetak ulang.
   await openStep(page, 'Pajak')
-  await expect(receipt).toHaveCount(0)
   await page.getByRole('button', { name: 'Pajak 11%' }).click()
   await openStep(page, 'Hasil')
-  await expect(receipt).toHaveAttribute('data-print', 'on')
+  await expect.poll(confettiCount).toBe(2)
 })
 
 test('simpan & tambah menu lain tanpa menutup sheet', async ({ page }) => {
