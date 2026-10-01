@@ -29,7 +29,7 @@ export function MoneyInput({
         value={thousands(value)}
         placeholder={placeholder}
         onChange={(e) => onChange(parseNumber(e.target.value))}
-        className="w-full min-w-0 bg-transparent text-lg font-semibold tabular-nums outline-none placeholder:text-muted/60"
+        className="w-full min-w-0 bg-transparent text-lg font-semibold tabular-nums outline-none placeholder:text-muted"
       />
       {suffix && <span className="text-sm font-semibold text-muted">{suffix}</span>}
     </label>

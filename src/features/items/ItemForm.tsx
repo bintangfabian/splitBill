@@ -37,9 +37,9 @@ export function ItemForm({
         : null
 
   const submit = (save: (i: Item) => void) => {
-    if (problem) return toast.error(problem)
+    if (problem) return toast.error(problem, { position: 'top-center' })
     save({ ...item, name: item.name.trim() })
-    if (isNew) toast.success(`${item.name.trim()} ditambahkan`)
+    if (isNew) toast.success(`${item.name.trim()} ditambahkan`, { position: 'top-center' })
   }
 
   return (
@@ -51,13 +51,13 @@ export function ItemForm({
         aria-label="Nama menu"
         // eslint-disable-next-line jsx-a11y/no-autofocus -- fokus ke field pertama saat sheet pesanan baru dibuka
         autoFocus={isNew}
-        className="w-full rounded-2xl bg-surface-2 px-4 py-3.5 text-lg font-semibold outline-none ring-ink/80 placeholder:font-medium placeholder:text-muted/70 focus:ring-2"
+        className="w-full rounded-2xl bg-surface-2 px-4 py-3.5 text-lg font-semibold outline-none ring-ink/80 placeholder:font-medium placeholder:text-muted focus:ring-2"
       />
 
       <div className="flex gap-3">
         <MoneyInput label="Harga satuan" value={item.price} onChange={(price) => set({ price })} className="flex-1" />
         <div className="flex items-center gap-1 rounded-2xl bg-surface-2 p-1.5">
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Kurangi jumlah">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Kurangi jumlah">
             <Minus size={16} />
           </motion.button>
           <AnimatePresence mode="popLayout" initial={false}>
@@ -71,7 +71,7 @@ export function ItemForm({
               {item.qty}
             </motion.span>
           </AnimatePresence>
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Tambah jumlah">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Tambah jumlah">
             <Plus size={16} />
           </motion.button>
         </div>
@@ -83,7 +83,7 @@ export function ItemForm({
           <button
             onClick={() => set({ sharedBy: allSelected ? [] : bill.people.map((p) => p.id) })}
             aria-pressed={allSelected}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${allSelected ? 'bg-ink text-bg' : 'bg-surface-2'}`}
+            className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-xs font-bold transition-colors ${allSelected ? 'bg-ink text-bg' : 'bg-surface-2'}`}
           >
             <Users size={13} /> Semua
           </button>

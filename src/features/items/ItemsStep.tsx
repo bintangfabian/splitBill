@@ -3,6 +3,7 @@ import { AlertCircle, Plus } from 'lucide-react'
 import { lazy, Suspense, useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
 import type { Bill, Item } from '../../domain/bill'
+import { itemsSubtotal } from '../../domain/calculate'
 import { rupiah } from '../../lib/format'
 import { uid } from '../../lib/id'
 import type { Action } from '../../state/billReducer'
@@ -18,7 +19,7 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
   const [draft, setDraft] = useState<Item | null>(null)
   const [open, setOpen] = useState(false)
   const people = new Map(bill.people.map((p) => [p.id, p]))
-  const subtotal = bill.items.reduce((s, i) => s + i.price * i.qty, 0)
+  const subtotal = itemsSubtotal(bill.items)
 
   const edit = (item: Item) => {
     setDraft(item)
