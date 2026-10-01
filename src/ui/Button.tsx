@@ -1,20 +1,20 @@
 import { motion, type HTMLMotionProps } from 'motion/react'
-import { duration, press } from './motion'
 
-type ButtonProps = HTMLMotionProps<'button'> & { variant?: 'primary' | 'soft' | 'ghost' }
+type ButtonProps = HTMLMotionProps<'button'> & { variant?: 'primary' | 'lime' | 'ghost' | 'soft' }
 
 const variants = {
   primary: 'bg-ink text-bg',
-  soft: 'bg-surface-2 text-ink',
+  lime: 'bg-lime text-[#141414]',
   ghost: 'bg-transparent text-ink',
+  soft: 'bg-surface-2 text-ink',
 }
 
 export function Button({ variant = 'primary', className = '', ...props }: ButtonProps) {
   return (
     <motion.button
-      whileTap={press}
-      transition={{ duration: duration.fast }}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-5 font-semibold disabled:pointer-events-none disabled:opacity-40 ${variants[variant]} ${className}`}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+      className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 font-semibold disabled:opacity-40 disabled:pointer-events-none ${variants[variant]} ${className}`}
       {...props}
     />
   )

@@ -30,7 +30,7 @@ export function buildShareText(bill: Bill, result: BillResult) {
     }),
     '',
     ...(charges ? [charges] : []),
-    'Dihitung pakai SplitBill',
+    'Dihitung pakai SplitBill ✨',
   ]
   return lines.join('\n')
 }

@@ -20,16 +20,16 @@ export function MoneyInput({
 }) {
   return (
     <label
-      className={`flex h-12 items-center gap-2 rounded-control bg-surface-2 px-4 ring-ink transition-shadow focus-within:ring-2 ${className}`}
+      className={`flex items-center gap-2 rounded-2xl bg-surface-2 px-4 py-3.5 ring-ink/80 transition focus-within:ring-2 ${className}`}
     >
-      {prefix && <span className="text-[15px] font-semibold text-muted">{prefix}</span>}
+      {prefix && <span className="text-sm font-semibold text-muted">{prefix}</span>}
       <input
         inputMode="numeric"
         aria-label={label}
         value={thousands(value)}
         placeholder={placeholder}
         onChange={(e) => onChange(parseNumber(e.target.value))}
-        className="w-full min-w-0 bg-transparent text-[17px] font-semibold tabular-nums outline-none placeholder:text-muted"
+        className="w-full min-w-0 bg-transparent text-lg font-semibold tabular-nums outline-none placeholder:text-muted"
       />
       {suffix && <span className="text-sm font-semibold text-muted">{suffix}</span>}
     </label>
