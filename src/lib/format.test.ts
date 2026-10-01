@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { initials, parseNumber, rupiah, thousands, uid } from './format'
+import { initials, parseNumber, rupiah, thousands } from './format'
 
 describe('rupiah', () => {
   it('memformat ke rupiah tanpa desimal dan membulatkan', () => {
@@ -41,13 +41,5 @@ describe('initials', () => {
     expect(initials('Ani 😎')).toBe('A😎')
     expect(initials('Rina 🇮🇩')).toBe('R🇮🇩')
     expect(initials('👨‍👩‍👧 Keluarga')).toBe('👨‍👩‍👧K')
-  })
-})
-
-describe('uid', () => {
-  it('membuat id 8 karakter yang berbeda tiap panggilan', () => {
-    const a = uid()
-    expect(a).toMatch(/^[a-z0-9]{8}$/)
-    expect(uid()).not.toBe(a)
   })
 })

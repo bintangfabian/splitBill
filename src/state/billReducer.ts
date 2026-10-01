@@ -1,18 +1,7 @@
-import { useEffect, useReducer } from 'react'
-import type { Bill, Charges, Item, Person } from './types'
-import { uid } from './format'
+import { emptyBill, type Bill, type Charges, type Item, type Person } from '../domain/bill'
+import { uid } from '../lib/id'
 
 export const PALETTE = ['#FFB4A2', '#B8E0D2', '#C3B1E1', '#FFD97D', '#A0C4FF', '#F4A6CD', '#B5E48C', '#FFC6A5']
-
-const KEY = 'splitbill:v1'
-
-export const emptyBill = (): Bill => ({
-  title: '',
-  people: [],
-  items: [],
-  charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0 },
-  payerId: null,
-})
 
 export type Action =
   | { type: 'title'; title: string }
@@ -27,7 +16,7 @@ export type Action =
   | { type: 'reset' }
   | { type: 'replace'; bill: Bill }
 
-export function reducer(bill: Bill, a: Action): Bill {
+export function billReducer(bill: Bill, a: Action): Bill {
   switch (a.type) {
     case 'title':
       return { ...bill, title: a.title }
@@ -74,26 +63,4 @@ export function reducer(bill: Bill, a: Action): Bill {
     case 'replace':
       return a.bill
   }
-}
-
-function load(): Bill {
-  try {
-    const raw = localStorage.getItem(KEY)
-    if (raw) return { ...emptyBill(), ...JSON.parse(raw) }
-  } catch {
-    /* storage tidak tersedia */
-  }
-  return emptyBill()
-}
-
-export function useBill() {
-  const [bill, dispatch] = useReducer(reducer, undefined, load)
-  useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(bill))
-    } catch {
-      /* abaikan */
-    }
-  }, [bill])
-  return [bill, dispatch] as const
 }

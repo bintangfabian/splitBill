@@ -2,10 +2,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Plus, X } from 'lucide-react'
 import { useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
-import type { Action } from '../lib/store'
-import type { Bill } from '../lib/types'
-import { FriendsIllustration } from './Illustrations'
-import { Avatar, SectionTitle } from './ui'
+import type { Bill } from '../../domain/bill'
+import type { Action } from '../../state/billReducer'
+import { Avatar, FriendsIllustration, SectionTitle } from '../../ui'
 
 export function PeopleStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<Action> }) {
   const [name, setName] = useState('')
