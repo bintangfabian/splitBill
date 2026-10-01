@@ -1,4 +1,5 @@
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
+import type { ReactNode } from 'react'
 
 const float = (delay = 0, y = 6) => ({
   animate: { y: [0, -y, 0] },
@@ -90,25 +91,74 @@ export function ReceiptIllustration({ className = '' }: { className?: string }) 
   )
 }
 
+/** Ekspresi wajah struk; dipilih dari kondisi tagihan oleh fitur yang memakainya. */
+export type FaceMood = 'happy' | 'excited' | 'worried'
+
+const stroke = { stroke: 'var(--ink)', strokeWidth: 3, strokeLinecap: 'round' as const, fill: 'none' }
+
+const faces: Record<FaceMood, ReactNode> = {
+  happy: (
+    <>
+      <circle cx="48" cy="29" r="3.2" fill="var(--ink)" />
+      <circle cx="66" cy="29" r="3.2" fill="var(--ink)" />
+      <path d="M51 37q6 5 12 0" {...stroke} />
+    </>
+  ),
+  // Mata tertutup senang seperti teman mint di ilustrasi langkah Teman, plus pipi merona.
+  excited: (
+    <>
+      <path d="M44.5 30q3.5-4.5 7 0M62.5 30q3.5-4.5 7 0" {...stroke} />
+      <path d="M51 35h12a6 6 0 0 1-12 0z" fill="var(--ink)" />
+      <circle cx="42.5" cy="37" r="3" fill="#FF7A59" opacity=".35" />
+      <circle cx="71.5" cy="37" r="3" fill="#FF7A59" opacity=".35" />
+    </>
+  ),
+  worried: (
+    <>
+      <path d="M43.5 23l6-2.2M70.5 23l-6-2.2" {...stroke} strokeWidth={2.6} />
+      <circle cx="48" cy="29.5" r="2.8" fill="var(--ink)" />
+      <circle cx="66" cy="29.5" r="2.8" fill="var(--ink)" />
+      <path d="M50 39q2.33-2.6 4.67 0t4.67 0t4.67 0" {...stroke} strokeWidth={2.6} />
+    </>
+  ),
+}
+
+/** Badan struk berwajah; wajahnya berganti dengan animasi kecil saat ekspresinya berubah. */
+function ReceiptBuddy({ mood }: { mood: FaceMood }) {
+  return (
+    <>
+      <path
+        d="M39 10h36a6 6 0 0 1 6 6v54l-8-5-8 5-8-5-8 5-8-5-8 5V16a6 6 0 0 1 6-6z"
+        fill="var(--surface)"
+        stroke="var(--ink)"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.g
+          key={mood}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
+          {faces[mood]}
+        </motion.g>
+      </AnimatePresence>
+      <rect x="40" y="47" width="22" height="4" rx="2" fill="var(--line)" />
+      <rect x="66" y="47" width="8" height="4" rx="2" fill="#7C5CFF" />
+      <rect x="40" y="55" width="34" height="4" rx="2" fill="#D4F35B" />
+    </>
+  )
+}
+
 /** Struk kecil berwajah dengan lencana % — header langkah Pajak. */
-export function TaxIllustration({ className = '' }: { className?: string }) {
+export function TaxIllustration({ mood = 'happy', className = '' }: { mood?: FaceMood; className?: string }) {
   return (
     <svg viewBox="0 0 120 90" className={className} aria-hidden>
       <ellipse cx="57" cy="84" rx="26" ry="3.5" fill="var(--surface-2)" />
       <motion.g {...float(0, 3)}>
-        <path
-          d="M39 10h36a6 6 0 0 1 6 6v54l-8-5-8 5-8-5-8 5-8-5-8 5V16a6 6 0 0 1 6-6z"
-          fill="var(--surface)"
-          stroke="var(--ink)"
-          strokeWidth="3"
-          strokeLinejoin="round"
-        />
-        <circle cx="48" cy="29" r="3.2" fill="var(--ink)" />
-        <circle cx="66" cy="29" r="3.2" fill="var(--ink)" />
-        <path d="M51 37q6 5 12 0" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" fill="none" />
-        <rect x="40" y="47" width="22" height="4" rx="2" fill="var(--line)" />
-        <rect x="66" y="47" width="8" height="4" rx="2" fill="#7C5CFF" />
-        <rect x="40" y="55" width="34" height="4" rx="2" fill="#D4F35B" />
+        <ReceiptBuddy mood={mood} />
       </motion.g>
       <motion.g
         animate={{ y: [0, -4, 0], rotate: [0, 8, 0] }}
@@ -131,8 +181,47 @@ export function TaxIllustration({ className = '' }: { className?: string }) {
         animate={{ scale: [1, 1.2, 1], rotate: [0, 20, 0] }}
         transition={{ duration: 2.4, repeat: Infinity }}
       />
+      {/* Bintang tambahan muncul saat struknya girang karena ada diskon. */}
+      <AnimatePresence>
+        {mood === 'excited' && (
+          <motion.path
+            d="M105 34l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"
+            fill="#D4F35B"
+            stroke="var(--ink)"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            initial={{ scale: 0, rotate: -45 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 14 }}
+          />
+        )}
+      </AnimatePresence>
       <circle cx="104" cy="60" r="3.5" fill="#FF7A59" stroke="var(--ink)" strokeWidth="2" />
       <circle cx="19" cy="58" r="3.5" fill="#FFD97D" stroke="var(--ink)" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Struk cemas berkeringat — penanda ada yang belum beres di daftar pesanan. */
+export function WorriedReceiptIllustration({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="28 5 70 70" className={className} aria-hidden>
+      <motion.g
+        animate={{ rotate: [0, -3, 3, -2, 0] }}
+        transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 1.6, ease: 'easeInOut' }}
+      >
+        <ReceiptBuddy mood="worried" />
+      </motion.g>
+      <motion.path
+        d="M89 13c2.6 3.6 4 5.8 4 7.6a4 4 0 0 1-8 0c0-1.8 1.4-4 4-7.6z"
+        fill="#B8E0D2"
+        stroke="var(--ink)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        animate={{ y: [0, 3, 0] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+      />
     </svg>
   )
 }

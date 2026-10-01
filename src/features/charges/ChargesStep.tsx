@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import type { Dispatch, ReactNode } from 'react'
 import type { Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
+import { billMood } from '../../domain/mood'
 import type { Action } from '../../state/billReducer'
 import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, TaxIllustration, Toggle } from '../../ui'
 
@@ -45,7 +46,7 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
       <SectionTitle
         eyebrow="Langkah 3"
         title={<>Pajak & <span className="font-serif font-normal italic">service</span></>}
-        art={<TaxIllustration className="w-20 shrink-0" />}
+        art={<TaxIllustration mood={billMood(result)} className="w-20 shrink-0" />}
       >
         Samain sama yang tertulis di struk ya.
       </SectionTitle>
