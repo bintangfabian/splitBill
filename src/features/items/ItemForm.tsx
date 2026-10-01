@@ -44,36 +44,45 @@ export function ItemForm({
 
   return (
     <div className="space-y-5 pb-2">
-      <input
-        value={item.name}
-        onChange={(e) => set({ name: e.target.value })}
-        placeholder="Nama menu, mis. Nasi Goreng"
-        aria-label="Nama menu"
-        // eslint-disable-next-line jsx-a11y/no-autofocus -- fokus ke field pertama saat sheet pesanan baru dibuka
-        autoFocus={isNew}
-        className="w-full rounded-2xl bg-surface-2 px-4 py-3.5 text-lg font-semibold outline-none ring-ink/80 placeholder:font-medium placeholder:text-muted focus:ring-2"
-      />
+      {/* Label kecil di dalam kotak, sama seperti label Subtotal/Total di bar bawah, supaya tetap terlihat setelah diisi. */}
+      <label className="block rounded-2xl bg-surface-2 px-4 pt-2.5 pb-3 ring-ink/80 transition focus-within:ring-2">
+        <span className="block text-[11px] font-semibold text-muted">Nama menu</span>
+        <input
+          value={item.name}
+          onChange={(e) => set({ name: e.target.value })}
+          placeholder="mis. Nasi Goreng"
+          // eslint-disable-next-line jsx-a11y/no-autofocus -- fokus ke field pertama saat sheet pesanan baru dibuka
+          autoFocus={isNew}
+          className="w-full bg-transparent text-lg font-semibold outline-none placeholder:font-medium placeholder:text-muted"
+        />
+      </label>
 
       <div className="flex gap-3">
-        <MoneyInput label="Harga satuan" value={item.price} onChange={(price) => set({ price })} className="flex-1" />
-        <div className="flex items-center gap-1 rounded-2xl bg-surface-2 p-1.5">
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Kurangi jumlah">
-            <Minus size={16} />
-          </motion.button>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
-              key={item.qty}
-              initial={{ y: -12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 12, opacity: 0 }}
-              className="w-7 text-center font-bold tabular-nums"
-            >
-              {item.qty}
-            </motion.span>
-          </AnimatePresence>
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Tambah jumlah">
-            <Plus size={16} />
-          </motion.button>
+        <MoneyInput label="Harga satuan" showLabel value={item.price} onChange={(price) => set({ price })} className="flex-1" />
+        <div className="flex flex-col rounded-2xl bg-surface-2 px-1.5 pt-2.5 pb-1.5">
+          {/* Tombolnya sudah bernama "Kurangi/Tambah jumlah", jadi label ini cukup untuk mata. */}
+          <span className="px-2.5 text-[11px] font-semibold text-muted" aria-hidden>
+            Jumlah
+          </span>
+          <div className="flex flex-1 items-center gap-1">
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Kurangi jumlah">
+              <Minus size={16} />
+            </motion.button>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={item.qty}
+                initial={{ y: -12, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 12, opacity: 0 }}
+                className="w-7 text-center font-bold tabular-nums"
+              >
+                {item.qty}
+              </motion.span>
+            </AnimatePresence>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-10 place-items-center rounded-xl bg-surface" aria-label="Tambah jumlah">
+              <Plus size={16} />
+            </motion.button>
+          </div>
         </div>
       </div>
 
