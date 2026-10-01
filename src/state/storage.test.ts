@@ -38,6 +38,11 @@ describe('loadBill', () => {
     expect(loadBill(memoryStorage(JSON.stringify(old))).charges).toEqual({ ...emptyBill().charges, servicePct: 0, taxPct: 11 })
   })
 
+  it('mengisi info rekening kosong untuk data yang disimpan sebelum fitur itu ada', () => {
+    const { paymentInfo: _, ...old } = { ...emptyBill(), title: 'Lama' }
+    expect(loadBill(memoryStorage(JSON.stringify(old))).paymentInfo).toBe('')
+  })
+
   it('mengembalikan tagihan kosong kalau data rusak atau storage tidak bisa diakses', () => {
     expect(loadBill(memoryStorage('{bukan json'))).toEqual(emptyBill())
     expect(loadBill(broken)).toEqual(emptyBill())

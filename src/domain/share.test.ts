@@ -44,6 +44,16 @@ describe('buildShareText', () => {
     expect(nominal).toContain('Service 5% · Pajak 10% · Diskon Rp 5.000')
   })
 
+  it('menulis rekening atau e-wallet pembayar di bawah total', () => {
+    const lines = share(bill({ paymentInfo: '  BCA 1234567890 a.n. Budi ' })).split('\n')
+    expect(lines.slice(1, 3)).toEqual(['Total: Rp 23.100 — dibayar Budi', 'Transfer ke: BCA 1234567890 a.n. Budi'])
+  })
+
+  it('tidak menulis baris transfer kalau info kosong atau belum ada pembayar', () => {
+    expect(share(bill({ paymentInfo: '   ' }))).not.toContain('Transfer ke')
+    expect(share(bill({ paymentInfo: 'BCA 123', payerId: null }))).not.toContain('Transfer ke')
+  })
+
   it('tidak menulis baris biaya kalau tanpa service, pajak, diskon, dan biaya lain', () => {
     const text = share(bill({ charges: { ...emptyBill().charges, servicePct: 0, taxPct: 0 } }))
     expect(text).not.toContain('Service')

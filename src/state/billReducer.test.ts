@@ -68,6 +68,12 @@ describe('billReducer', () => {
     expect(b.payerId).toBe('p1')
   })
 
+  it('menyimpan info rekening pembayar dan mengosongkannya saat reset', () => {
+    const b = billReducer(emptyBill(), { type: 'paymentInfo', paymentInfo: 'GoPay 081234567890' })
+    expect(b.paymentInfo).toBe('GoPay 081234567890')
+    expect(billReducer(b, { type: 'reset' }).paymentInfo).toBe('')
+  })
+
   it('mengosongkan tagihan lewat reset dan memulihkannya lewat replace', () => {
     const full = withPeople('Budi', 'Ani')
     const reset = billReducer(full, { type: 'reset' })

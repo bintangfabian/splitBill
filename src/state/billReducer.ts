@@ -13,6 +13,7 @@ export type Action =
   | { type: 'restoreItem'; item: Item; index: number }
   | { type: 'charges'; patch: Partial<Charges> }
   | { type: 'payer'; id: string }
+  | { type: 'paymentInfo'; paymentInfo: string }
   | { type: 'reset' }
   | { type: 'replace'; bill: Bill }
 
@@ -58,6 +59,8 @@ export function billReducer(bill: Bill, a: Action): Bill {
       return { ...bill, charges: { ...bill.charges, ...a.patch } }
     case 'payer':
       return { ...bill, payerId: a.id }
+    case 'paymentInfo':
+      return { ...bill, paymentInfo: a.paymentInfo }
     case 'reset':
       return emptyBill()
     case 'replace':
