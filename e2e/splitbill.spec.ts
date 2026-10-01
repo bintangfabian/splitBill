@@ -200,3 +200,31 @@ test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', asyn
   await openStep(page, 'Hasil')
   await expect.poll(confettiCount).toBe(2)
 })
+
+test('simpan & tambah menu lain tanpa menutup sheet', async ({ page }) => {
+  await page.goto('/')
+  await addPeople(page, 'Budi', 'Ani')
+  await next(page)
+
+  await page.getByRole('button', { name: 'Tambah pesanan' }).click()
+  const sheet = page.getByRole('dialog')
+  await sheet.getByLabel('Nama menu').fill('Kopi Susu')
+  await sheet.getByLabel('Harga satuan').fill('18000')
+  await sheet.getByRole('button', { name: 'Budi', exact: true }).click()
+  await sheet.getByRole('button', { name: /Simpan & tambah menu lain/ }).click()
+
+  // Sheet tetap terbuka dengan form kosong dan kursor siap di nama menu.
+  await expect(sheet).toBeVisible()
+  await expect(sheet.getByLabel('Nama menu')).toHaveValue('')
+  await expect(sheet.getByLabel('Nama menu')).toBeFocused()
+
+  await sheet.getByLabel('Nama menu').fill('Roti Bakar')
+  await sheet.getByLabel('Harga satuan').fill('22000')
+  await sheet.getByRole('button', { name: 'Ani', exact: true }).click()
+  await sheet.getByRole('button', { name: /^Tambahkan/ }).click()
+
+  await expect(sheet).toBeHidden()
+  await expect(page.getByText('Subtotal (2 menu)')).toBeVisible()
+  await expect(page.getByRole('button', { name: /Kopi Susu/ })).toContainText('Budi')
+  await expect(page.getByRole('button', { name: /Roti Bakar/ })).toContainText('Ani')
+})

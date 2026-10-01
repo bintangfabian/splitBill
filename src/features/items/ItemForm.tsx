@@ -11,12 +11,15 @@ export function ItemForm({
   bill,
   isNew,
   onSave,
+  onSaveAndAddAnother,
   onDelete,
 }: {
   initial: Item
   bill: Bill
   isNew: boolean
   onSave: (i: Item) => void
+  /** Simpan lalu langsung kosongkan form untuk menu berikutnya tanpa menutup sheet. */
+  onSaveAndAddAnother: (i: Item) => void
   onDelete: () => void
 }) {
   const [item, setItem] = useState(initial)
@@ -25,11 +28,17 @@ export function ItemForm({
   const togglePerson = (id: string) =>
     set({ sharedBy: item.sharedBy.includes(id) ? item.sharedBy.filter((x) => x !== id) : [...item.sharedBy, id] })
 
-  const save = () => {
-    if (!item.name.trim()) return toast.error('Nama menunya diisi dulu ya')
-    if (!item.price) return toast.error('Harganya belum diisi')
-    if (item.sharedBy.length === 0) return toast.error('Pilih minimal satu orang yang pesan')
-    onSave({ ...item, name: item.name.trim() })
+  const problem = !item.name.trim()
+    ? 'Nama menunya diisi dulu ya'
+    : !item.price
+      ? 'Harganya belum diisi'
+      : item.sharedBy.length === 0
+        ? 'Pilih minimal satu orang yang pesan'
+        : null
+
+  const submit = (save: (i: Item) => void) => {
+    if (problem) return toast.error(problem)
+    save({ ...item, name: item.name.trim() })
     if (isNew) toast.success(`${item.name.trim()} ditambahkan`)
   }
 
@@ -105,15 +114,22 @@ export function ItemForm({
         )}
       </div>
 
-      <div className="flex gap-2 pt-1">
-        {!isNew && (
-          <Button variant="soft" onClick={onDelete} aria-label="Hapus pesanan" className="!px-4 text-coral">
-            <Trash2 size={18} />
+      <div className="space-y-1 pt-1">
+        <div className="flex gap-2">
+          {!isNew && (
+            <Button variant="soft" onClick={onDelete} aria-label="Hapus pesanan" className="!px-4 text-coral">
+              <Trash2 size={18} />
+            </Button>
+          )}
+          <Button className="flex-1" onClick={() => submit(onSave)}>
+            {isNew ? 'Tambahkan' : 'Simpan'} · {rupiah(item.price * item.qty)}
+          </Button>
+        </div>
+        {isNew && (
+          <Button variant="ghost" className="w-full !py-2.5 text-sm text-muted" onClick={() => submit(onSaveAndAddAnother)}>
+            <Plus size={16} /> Simpan & tambah menu lain
           </Button>
         )}
-        <Button className="flex-1" onClick={save}>
-          {isNew ? 'Tambahkan' : 'Simpan'} · {rupiah(item.price * item.qty)}
-        </Button>
       </div>
     </div>
   )
