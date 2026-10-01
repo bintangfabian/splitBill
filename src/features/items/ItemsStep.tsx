@@ -137,6 +137,10 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
                 dispatch({ type: 'upsertItem', item })
                 setOpen(false)
               }}
+              onSaveAndAddAnother={(item) => {
+                dispatch({ type: 'upsertItem', item })
+                setDraft(blank())
+              }}
               onDelete={() => remove(draft.id)}
             />
           )}
