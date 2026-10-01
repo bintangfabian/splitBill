@@ -9,6 +9,7 @@ function chargesSummary(c: Charges) {
     c.taxPct > 0 && `Pajak ${c.taxPct}%`,
     c.discount > 0 && `Diskon ${c.discountType === 'pct' ? `${c.discount}%` : rupiah(c.discount)}`,
     c.extraFee > 0 && `Biaya lain ${rupiah(c.extraFee)}`,
+    c.roundTo > 1 && `Dibulatkan ke ${rupiah(c.roundTo)}`,
   ]
     .filter(Boolean)
     .join(' · ')

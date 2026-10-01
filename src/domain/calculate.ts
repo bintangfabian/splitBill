@@ -13,7 +13,7 @@ export type PersonResult = {
   service: number
   tax: number
   extra: number
-  total: number // dibulatkan ke rupiah
+  total: number // dibulatkan ke rupiah, atau ke kelipatan charges.roundTo
 }
 
 export type BillResult = {
@@ -31,6 +31,7 @@ export type BillResult = {
  * Urutan hitung (umum di struk restoran Indonesia):
  *   subtotal − diskon → + service → + pajak (opsional dari subtotal + service) → + biaya lain.
  * Diskon, service & pajak dibagi proporsional sesuai pesanan; biaya lain dibagi rata.
+ * Tagihan selain pembayar dibulatkan ke kelipatan charges.roundTo terdekat; pembayar menanggung sisanya.
  */
 export function calculate(bill: Bill): BillResult {
   const { people, items, charges, payerId } = bill
@@ -71,6 +72,7 @@ export function calculate(bill: Bill): BillResult {
   const extraPer = people.length ? charges.extraFee / people.length : 0
 
   let exact = 0
+  const exactOf = new Map<string, number>()
   for (const r of perPerson) {
     const share = subtotal ? r.subtotal / subtotal : 0
     r.discount = discountTotal * share
@@ -80,13 +82,20 @@ export function calculate(bill: Bill): BillResult {
     r.extra = extraPer
     const t = base + r.service + r.tax + r.extra
     exact += t
-    r.total = Math.round(t)
+    exactOf.set(r.personId, t)
   }
 
-  // Selisih pembulatan ditanggung si pembayar (atau orang pertama) supaya total pas.
+  // Selisih pembulatan ditanggung si pembayar (atau orang pertama) supaya total pas dengan struk.
   const total = Math.round(exact)
-  const diff = total - perPerson.reduce((s, r) => s + r.total, 0)
-  if (diff && perPerson.length) (byId.get(payerId ?? '') ?? perPerson[0]).total += diff
+  const payer = byId.get(payerId ?? '') ?? perPerson[0]
+  const step = Math.max(1, charges.roundTo || 1)
+  let others = 0
+  for (const r of perPerson) {
+    if (r === payer) continue
+    r.total = Math.round(exactOf.get(r.personId)! / step) * step
+    others += r.total
+  }
+  if (payer) payer.total = total - others
 
   const sum = (k: keyof Pick<PersonResult, 'discount' | 'service' | 'tax' | 'extra'>) =>
     perPerson.reduce((s, r) => s + r[k], 0)

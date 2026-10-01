@@ -188,6 +188,22 @@ test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel
   expect(shared).toContain('Service 10% · Pajak 10% · Diskon Rp 20.000 · Biaya lain Rp 10.000')
 })
 
+test('pembulatan per orang menggeser selisih ke pembayar dan ikut dibagikan', async ({ page }) => {
+  await seed(page)
+  await openStep(page, 'Pajak')
+
+  // Iga Bakar 100.000 dibagi 2 + service 5% + pajak 10% = 57.750 per orang
+  await page.getByRole('button', { name: '1rb', exact: true }).click()
+  await expect(page.getByRole('button', { name: '1rb', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('footer')).toContainText('Rp 115.500')
+
+  await next(page)
+  const shared = await readShared(page)
+  expect(shared).toContain('• Budi (yang bayar): Rp 57.500')
+  expect(shared).toContain('• Ani: Rp 58.000')
+  expect(shared).toContain('Dibulatkan ke Rp 1.000')
+})
+
 test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
   await page.addInitScript(() => {
     const w = window as unknown as { confettiCanvasCount: number }

@@ -11,6 +11,7 @@ const charges = (patch: Partial<Charges> = {}): Charges => ({
   discount: 0,
   discountType: 'amount',
   extraFee: 0,
+  roundTo: 1,
   ...patch,
 })
 const bill = (patch: Partial<Bill>): Bill => ({ title: '', people: [], items: [], charges: charges(), payerId: null, paymentInfo: '', ...patch })
@@ -106,6 +107,29 @@ describe('calculate', () => {
   it('membebankan selisih pembulatan ke orang pertama kalau belum ada pembayar', () => {
     const b = bill({ people: [person('a'), person('b'), person('c')], items: [item('x', 10000, ['a', 'b', 'c'])] })
     expect(totals(b)).toEqual([3334, 3333, 3333])
+  })
+
+  it('membulatkan tagihan selain pembayar ke kelipatan terdekat, sisanya ke pembayar', () => {
+    const b = bill({
+      people: [person('a'), person('b'), person('c')],
+      items: [item('x', 12000, ['a']), item('y', 23400, ['b']), item('z', 18600, ['c'])],
+      charges: charges({ roundTo: 1000 }),
+      payerId: 'a',
+    })
+    // b 23.400 turun ke 23.000, c 18.600 naik ke 19.000, a menanggung sisa dari total 54.000
+    expect(totals(b)).toEqual([12000, 23000, 19000])
+    expect(calculate(b).total).toBe(54000)
+  })
+
+  it('pembulatan tetap menjaga total sama dengan struk saat menu dibagi rata', () => {
+    const b = bill({
+      people: [person('a'), person('b'), person('c')],
+      items: [item('x', 10000, ['a', 'b', 'c'])],
+      charges: charges({ roundTo: 500 }),
+      payerId: 'a',
+    })
+    expect(totals(b)).toEqual([3000, 3500, 3500])
+    expect(totals(b).reduce((s, t) => s + t, 0)).toBe(calculate(b).total)
   })
 
   it('tidak menghitung pesanan tanpa pemilik dan mencatatnya di unassigned', () => {

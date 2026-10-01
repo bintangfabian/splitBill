@@ -15,6 +15,7 @@ export type Charges = {
   discount: number
   discountType: 'amount' | 'pct'
   extraFee: number // ongkir / biaya lain, dibagi rata
+  roundTo: number // kelipatan pembulatan tagihan per orang: 1 (tanpa pembulatan), 100, 500, 1000
 }
 
 export type Bill = {
@@ -30,7 +31,7 @@ export const emptyBill = (): Bill => ({
   title: '',
   people: [],
   items: [],
-  charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0 },
+  charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0, roundTo: 1 },
   payerId: null,
   paymentInfo: '',
 })

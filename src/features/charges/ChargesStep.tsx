@@ -104,6 +104,22 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
           <MoneyInput label="Ongkir atau biaya lain" value={c.extraFee} onChange={(extraFee) => patch({ extraFee })} />
           <p className="mt-2 text-xs text-muted">Dibagi rata ke semua orang.</p>
         </Card>
+
+        <Card className="col-span-2">
+          <p className="mb-3 text-sm font-semibold">Pembulatan per orang</p>
+          <Segmented
+            id="round"
+            value={String(c.roundTo)}
+            onChange={(v) => patch({ roundTo: Number(v) })}
+            options={[
+              { value: '1', label: 'Tidak' },
+              { value: '100', label: '100' },
+              { value: '500', label: '500' },
+              { value: '1000', label: '1rb' },
+            ]}
+          />
+          <p className="mt-2 text-xs text-muted">Biar gampang transfer. Selisihnya ditanggung yang bayar duluan.</p>
+        </Card>
       </div>
 
       <motion.div layout className="mt-4 overflow-hidden rounded-[1.6rem] bg-hero p-5 text-[#F6F5F1]">
