@@ -53,13 +53,14 @@ Jangan push langsung ke `main`. Co-author baru terhitung untuk achievement kalau
 | --- | --- |
 | `npm run dev` | Server development |
 | `npm run typecheck` | Cek tipe TypeScript |
+| `npm run lint` | Lint (oxlint): aturan React hooks, aksesibilitas, TypeScript. Warning juga dianggap gagal |
 | `npm test` | Unit test (Vitest) |
 | `npm run test:e2e` | E2E di browser (Playwright, build production dulu otomatis) |
 | `npm run build` | Build production + PWA |
 
 Pertama kali menjalankan E2E di mesin baru: `npx playwright install --only-shell chromium`.
 
-Sebelum push, pastikan `npm test` dan `npm run test:e2e` lolos. Perilaku baru wajib disertai test: logika di unit test, alur pengguna di E2E. CI di GitHub Actions menjalankan semuanya di setiap PR.
+Sebelum push, pastikan `npm run lint`, `npm test`, dan `npm run test:e2e` lolos. Perilaku baru wajib disertai test: logika di unit test, alur pengguna di E2E. CI di GitHub Actions menjalankan semuanya di setiap PR.
 
 ## 6. Arsitektur
 

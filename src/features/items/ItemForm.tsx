@@ -39,6 +39,8 @@ export function ItemForm({
         value={item.name}
         onChange={(e) => set({ name: e.target.value })}
         placeholder="Nama menu, mis. Nasi Goreng"
+        aria-label="Nama menu"
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- fokus ke field pertama saat sheet pesanan baru dibuka
         autoFocus={isNew}
         className="w-full rounded-2xl bg-surface-2 px-4 py-3.5 text-lg font-semibold outline-none ring-ink/80 placeholder:font-medium placeholder:text-muted/70 focus:ring-2"
       />

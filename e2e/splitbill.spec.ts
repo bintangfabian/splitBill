@@ -175,13 +175,13 @@ test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel
 
 test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
   await page.addInitScript(() => {
-    const w = window as unknown as { __confetti: number }
-    w.__confetti = 0
+    const w = window as unknown as { confettiCanvasCount: number }
+    w.confettiCanvasCount = 0
     new MutationObserver((ms) =>
-      ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeName === 'CANVAS' && w.__confetti++)),
+      ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeName === 'CANVAS' && w.confettiCanvasCount++)),
     ).observe(document, { childList: true, subtree: true })
   })
-  const confettiCount = () => page.evaluate(() => (window as unknown as { __confetti: number }).__confetti)
+  const confettiCount = () => page.evaluate(() => (window as unknown as { confettiCanvasCount: number }).confettiCanvasCount)
   const confettiDone = () => expect(page.locator('canvas')).toHaveCount(0, { timeout: 10_000 })
 
   await seed(page)
