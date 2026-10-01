@@ -88,3 +88,7 @@ e2e/         skenario Playwright
 - `ui` tidak tahu apa-apa soal tagihan. Kalau komponen butuh data tagihan, tempatnya di `features`.
 - Logika baru (hitungan, validasi, format) masuk ke `domain` atau `lib` beserta unit test-nya. Komponen cukup menampilkan data dan memanggil `dispatch`.
 - Test ditaruh di sebelah filenya: `calculate.ts` → `calculate.test.ts`.
+
+## 7. Design
+
+Semua keputusan tampilan (warna, tipografi, motion, ilustrasi, logo, dan copy) mengikuti [`DESIGN.md`](DESIGN.md). Hal-hal di bagian "Jangan" sengaja dibuang dan tidak boleh dikembalikan. Warna memakai token di `src/index.css`, motion memakai token di `src/ui/motion.ts`.
