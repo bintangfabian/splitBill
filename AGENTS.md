@@ -22,7 +22,7 @@ Setiap commit menyertakan pasangan sebagai co-author, supaya begitu PR-nya di-me
 
 - Taruh trailer di baris paling akhir, dipisah satu baris kosong dari isi pesan.
 - Pakai email noreply di atas. Email ini pasti terhubung ke akun GitHub masing-masing, jadi co-author-nya terhitung.
-- Kalau PR di-squash, cek trailer-nya masih ada di pesan squash commit.
+- Merge PR pakai **Create a merge commit** (`gh pr merge --merge`), jangan squash. Satu-satunya PR yang terbukti memberi Pair Extraordinaire (kalku-app#3, 2025) memakai merge commit, sedangkan PR #3, #6, #7, #9–#13, dan #15 yang di-squash tidak memberi badge ke siapa pun.
 
 ## 3. Pesan commit dan PR harus bisa dilanjutkan
 
