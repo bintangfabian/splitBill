@@ -82,10 +82,11 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
                 key={p.id}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => dispatch({ type: 'payer', id: p.id })}
+                aria-pressed={p.id === bill.payerId}
                 className="flex w-16 shrink-0 flex-col items-center gap-1.5"
               >
                 <Avatar name={p.name} color={p.color} size={48} selected={p.id === bill.payerId} />
-                <span className={`w-full truncate text-xs font-semibold ${p.id === bill.payerId ? 'text-ink' : 'text-muted'}`}>
+                <span className={`line-clamp-2 w-full text-center text-xs leading-tight font-semibold wrap-break-word ${p.id === bill.payerId ? 'text-ink' : 'text-muted'}`}>
                   {p.name}
                 </span>
               </motion.button>
@@ -105,7 +106,11 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
           const open = expanded === r.personId
           return (
             <motion.div key={r.personId} variants={rise} layout className="overflow-hidden rounded-[1.4rem] bg-surface">
-              <button onClick={() => setExpanded(open ? null : r.personId)} className="flex w-full items-center gap-3 p-4 text-left">
+              <button
+                onClick={() => setExpanded(open ? null : r.personId)}
+                aria-expanded={open}
+                className="flex w-full items-center gap-3 p-4 text-left"
+              >
                 <Avatar name={p.name} color={p.color} size={42} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{p.name}</p>

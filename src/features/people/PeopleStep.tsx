@@ -74,27 +74,27 @@ export function PeopleStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<
         ) : (
           <motion.ul key="list" layout className="mt-5 grid grid-cols-2 gap-3">
             <AnimatePresence mode="popLayout">
-              {bill.people.map((p, i) => (
+              {bill.people.map((p) => (
                 <motion.li
                   key={p.id}
                   layout
                   initial={{ opacity: 0, scale: 0.6, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.6, filter: 'blur(6px)' }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 28, delay: i < 8 ? 0 : 0 }}
-                  className="relative flex items-center gap-3 rounded-[1.4rem] bg-surface p-3 pr-9"
+                  transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                  className="relative flex items-center gap-2.5 rounded-[1.4rem] bg-surface p-3 pr-4"
                 >
-                  <Avatar name={p.name} color={p.color} size={42} />
+                  <Avatar name={p.name} color={p.color} size={40} />
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">{p.name}</p>
+                    <p className="line-clamp-2 text-[15px] leading-tight font-semibold wrap-break-word">{p.name}</p>
                     {bill.payerId === p.id && <p className="text-xs font-semibold text-violet">Yang bayar</p>}
                   </div>
                   <button
                     onClick={() => remove(p.id)}
                     aria-label={`Hapus ${p.name}`}
-                    className="absolute top-2 right-2 grid size-7 place-items-center rounded-full text-muted hover:bg-surface-2"
+                    className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border-2 border-bg bg-surface-2 text-muted shadow-sm before:absolute before:-inset-2.5 hover:text-ink"
                   >
-                    <X size={15} />
+                    <X size={12} strokeWidth={2.75} />
                   </button>
                 </motion.li>
               ))}

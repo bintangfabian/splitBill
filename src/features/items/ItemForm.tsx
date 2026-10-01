@@ -44,9 +44,9 @@ export function ItemForm({
       />
 
       <div className="flex gap-3">
-        <MoneyInput value={item.price} onChange={(price) => set({ price })} className="flex-1" />
+        <MoneyInput label="Harga satuan" value={item.price} onChange={(price) => set({ price })} className="flex-1" />
         <div className="flex items-center gap-1 rounded-2xl bg-surface-2 p-1.5">
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Kurangi">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: Math.max(1, item.qty - 1) })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Kurangi jumlah">
             <Minus size={16} />
           </motion.button>
           <AnimatePresence mode="popLayout" initial={false}>
@@ -60,7 +60,7 @@ export function ItemForm({
               {item.qty}
             </motion.span>
           </AnimatePresence>
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Tambah">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => set({ qty: item.qty + 1 })} className="grid size-9 place-items-center rounded-xl bg-surface" aria-label="Tambah jumlah">
             <Plus size={16} />
           </motion.button>
         </div>
@@ -71,6 +71,7 @@ export function ItemForm({
           <p className="text-sm font-semibold">Siapa yang pesan?</p>
           <button
             onClick={() => set({ sharedBy: allSelected ? [] : bill.people.map((p) => p.id) })}
+            aria-pressed={allSelected}
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${allSelected ? 'bg-ink text-bg' : 'bg-surface-2'}`}
           >
             <Users size={13} /> Semua
@@ -84,6 +85,7 @@ export function ItemForm({
                 key={p.id}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => togglePerson(p.id)}
+                aria-pressed={on}
                 animate={{ backgroundColor: on ? p.color : 'var(--surface-2)' }}
                 className="flex items-center gap-2 rounded-full py-1.5 pr-4 pl-1.5 text-sm font-semibold"
                 style={{ color: on ? '#141414' : undefined }}

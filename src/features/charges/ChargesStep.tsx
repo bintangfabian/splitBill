@@ -5,7 +5,7 @@ import type { BillResult } from '../../domain/calculate'
 import type { Action } from '../../state/billReducer'
 import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, Toggle } from '../../ui'
 
-function Presets({ values, current, onPick }: { values: number[]; current: number; onPick: (v: number) => void }) {
+function Presets({ label, values, current, onPick }: { label: string; values: number[]; current: number; onPick: (v: number) => void }) {
   return (
     <div className="mt-2.5 grid grid-cols-3 gap-1">
       {values.map((v) => (
@@ -13,6 +13,8 @@ function Presets({ values, current, onPick }: { values: number[]; current: numbe
           key={v}
           whileTap={{ scale: 0.9 }}
           onClick={() => onPick(v)}
+          aria-label={`${label} ${v}%`}
+          aria-pressed={current === v}
           className={`rounded-full py-1 text-xs font-bold transition-colors ${current === v ? 'bg-ink text-bg' : 'bg-surface-2 text-muted'}`}
         >
           {v}%
@@ -47,13 +49,13 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
       <div className="grid grid-cols-2 gap-3">
         <Card>
           <p className="mb-2 text-sm font-semibold">Service</p>
-          <PercentInput value={c.servicePct} onChange={(servicePct) => patch({ servicePct })} />
-          <Presets values={[0, 5, 10]} current={c.servicePct} onPick={(servicePct) => patch({ servicePct })} />
+          <PercentInput label="Service (%)" value={c.servicePct} onChange={(servicePct) => patch({ servicePct })} />
+          <Presets label="Service" values={[0, 5, 10]} current={c.servicePct} onPick={(servicePct) => patch({ servicePct })} />
         </Card>
         <Card>
           <p className="mb-2 text-sm font-semibold">Pajak (PB1)</p>
-          <PercentInput value={c.taxPct} onChange={(taxPct) => patch({ taxPct })} />
-          <Presets values={[0, 10, 11]} current={c.taxPct} onPick={(taxPct) => patch({ taxPct })} />
+          <PercentInput label="Pajak (%)" value={c.taxPct} onChange={(taxPct) => patch({ taxPct })} />
+          <Presets label="Pajak" values={[0, 10, 11]} current={c.taxPct} onPick={(taxPct) => patch({ taxPct })} />
         </Card>
 
         <Card className="col-span-2">
@@ -85,16 +87,16 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
             </div>
           </div>
           {c.discountType === 'amount' ? (
-            <MoneyInput value={c.discount} onChange={(discount) => patch({ discount })} />
+            <MoneyInput label="Diskon (Rp)" value={c.discount} onChange={(discount) => patch({ discount })} />
           ) : (
-            <PercentInput value={c.discount} onChange={(discount) => patch({ discount })} />
+            <PercentInput label="Diskon (%)" value={c.discount} onChange={(discount) => patch({ discount })} />
           )}
           <p className="mt-2 text-xs text-muted">Dipotong dari subtotal sebelum service & pajak, dibagi sesuai porsi pesanan.</p>
         </Card>
 
         <Card className="col-span-2">
           <p className="mb-2 text-sm font-semibold">Ongkir / biaya lain</p>
-          <MoneyInput value={c.extraFee} onChange={(extraFee) => patch({ extraFee })} />
+          <MoneyInput label="Ongkir atau biaya lain" value={c.extraFee} onChange={(extraFee) => patch({ extraFee })} />
           <p className="mt-2 text-xs text-muted">Dibagi rata ke semua orang.</p>
         </Card>
       </div>

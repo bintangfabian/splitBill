@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export function PercentInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+export function PercentInput({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
   const [text, setText] = useState(String(value))
   useEffect(() => {
     if (Number(text.replace(',', '.')) !== value) setText(String(value))
@@ -10,6 +10,7 @@ export function PercentInput({ value, onChange }: { value: number; onChange: (n:
     <label className="flex items-center gap-1 rounded-2xl bg-surface-2 px-4 py-3 ring-ink/80 transition focus-within:ring-2">
       <input
         inputMode="decimal"
+        aria-label={label}
         value={text}
         onChange={(e) => {
           const t = e.target.value.replace(/[^\d.,]/g, '')

@@ -3,6 +3,7 @@ import { parseNumber, thousands } from '../lib/format'
 export function MoneyInput({
   value,
   onChange,
+  label,
   placeholder = '0',
   prefix = 'Rp',
   suffix,
@@ -11,6 +12,8 @@ export function MoneyInput({
 }: {
   value: number
   onChange: (n: number) => void
+  /** Nama input untuk screen reader. */
+  label: string
   placeholder?: string
   prefix?: string
   suffix?: string
@@ -24,6 +27,7 @@ export function MoneyInput({
       {prefix && <span className="text-sm font-semibold text-muted">{prefix}</span>}
       <input
         inputMode="numeric"
+        aria-label={label}
         autoFocus={autoFocus}
         value={thousands(value)}
         placeholder={placeholder}

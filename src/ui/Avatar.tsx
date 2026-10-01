@@ -3,6 +3,7 @@ import { initials } from '../lib/format'
 export function Avatar({ name, color, size = 40, selected }: { name: string; color: string; size?: number; selected?: boolean }) {
   return (
     <span
+      aria-hidden
       className="relative inline-grid shrink-0 place-items-center rounded-full font-bold text-[#141414] transition-shadow"
       style={{
         width: size,

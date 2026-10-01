@@ -5,7 +5,12 @@ export function StepNav({ step, onSelect }: { step: number; onSelect: (step: num
   return (
     <nav className="mt-4 flex gap-1.5 rounded-full bg-surface p-1">
       {STEPS.map((label, i) => (
-        <button key={label} onClick={() => onSelect(i)} className="relative flex-1 rounded-full py-2 text-xs font-bold">
+        <button
+          key={label}
+          onClick={() => onSelect(i)}
+          aria-current={i === step ? 'step' : undefined}
+          className="relative flex-1 rounded-full py-2 text-xs font-bold"
+        >
           {i === step && (
             <motion.span
               layoutId="step-pill"

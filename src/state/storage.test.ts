@@ -33,6 +33,11 @@ describe('loadBill', () => {
     expect(loadBill(memoryStorage(JSON.stringify(saved)))).toEqual(saved)
   })
 
+  it('melengkapi field charges yang belum ada di data lama', () => {
+    const old = { ...emptyBill(), title: 'Lama', charges: { servicePct: 0, taxPct: 11 } }
+    expect(loadBill(memoryStorage(JSON.stringify(old))).charges).toEqual({ ...emptyBill().charges, servicePct: 0, taxPct: 11 })
+  })
+
   it('mengembalikan tagihan kosong kalau data rusak atau storage tidak bisa diakses', () => {
     expect(loadBill(memoryStorage('{bukan json'))).toEqual(emptyBill())
     expect(loadBill(broken)).toEqual(emptyBill())
