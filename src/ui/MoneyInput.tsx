@@ -8,7 +8,6 @@ export function MoneyInput({
   prefix = 'Rp',
   suffix,
   className = '',
-  autoFocus,
 }: {
   value: number
   onChange: (n: number) => void
@@ -18,7 +17,6 @@ export function MoneyInput({
   prefix?: string
   suffix?: string
   className?: string
-  autoFocus?: boolean
 }) {
   return (
     <label
@@ -28,7 +26,6 @@ export function MoneyInput({
       <input
         inputMode="numeric"
         aria-label={label}
-        autoFocus={autoFocus}
         value={thousands(value)}
         placeholder={placeholder}
         onChange={(e) => onChange(parseNumber(e.target.value))}
