@@ -27,7 +27,7 @@ export type Action =
   | { type: 'reset' }
   | { type: 'replace'; bill: Bill }
 
-function reducer(bill: Bill, a: Action): Bill {
+export function reducer(bill: Bill, a: Action): Bill {
   switch (a.type) {
     case 'title':
       return { ...bill, title: a.title }

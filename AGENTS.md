@@ -46,3 +46,17 @@ Bagian **Selanjutnya** berisi langkah berikutnya, hal yang belum beres, atau kep
 Issue → branch (`feat/…`, `fix/…`, `docs/…`) → PR → merge, satu PR untuk satu topik.
 
 Jangan push langsung ke `main`. Co-author baru terhitung untuk achievement kalau commit-nya masuk lewat PR yang di-merge.
+
+## 5. Perintah
+
+| Perintah | Fungsi |
+| --- | --- |
+| `npm run dev` | Server development |
+| `npm run typecheck` | Cek tipe TypeScript |
+| `npm test` | Unit test (Vitest) |
+| `npm run test:e2e` | E2E di browser (Playwright, build production dulu otomatis) |
+| `npm run build` | Build production + PWA |
+
+Pertama kali menjalankan E2E di mesin baru: `npx playwright install --only-shell chromium`.
+
+Sebelum push, pastikan `npm test` dan `npm run test:e2e` lolos. Perilaku baru wajib disertai test: logika di unit test, alur pengguna di E2E. CI di GitHub Actions menjalankan semuanya di setiap PR.
