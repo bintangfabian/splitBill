@@ -90,6 +90,53 @@ export function ReceiptIllustration({ className = '' }: { className?: string }) 
   )
 }
 
+/** Struk kecil berwajah dengan lencana % — header langkah Pajak. */
+export function TaxIllustration({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 120 90" className={className} aria-hidden>
+      <ellipse cx="57" cy="84" rx="26" ry="3.5" fill="var(--surface-2)" />
+      <motion.g {...float(0, 3)}>
+        <path
+          d="M39 10h36a6 6 0 0 1 6 6v54l-8-5-8 5-8-5-8 5-8-5-8 5V16a6 6 0 0 1 6-6z"
+          fill="var(--surface)"
+          stroke="var(--ink)"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+        <circle cx="48" cy="29" r="3.2" fill="var(--ink)" />
+        <circle cx="66" cy="29" r="3.2" fill="var(--ink)" />
+        <path d="M51 37q6 5 12 0" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" fill="none" />
+        <rect x="40" y="47" width="22" height="4" rx="2" fill="var(--line)" />
+        <rect x="66" y="47" width="8" height="4" rx="2" fill="#7C5CFF" />
+        <rect x="40" y="55" width="34" height="4" rx="2" fill="#D4F35B" />
+      </motion.g>
+      <motion.g
+        animate={{ y: [0, -4, 0], rotate: [0, 8, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+      >
+        <circle cx="91" cy="21" r="14" fill="#B8E0D2" stroke="var(--ink)" strokeWidth="3" />
+        {/* Tanda % digambar sebagai garis supaya tetap tajam dan gelap di mode gelap. */}
+        <g stroke="#141414" strokeWidth="2.4" strokeLinecap="round" fill="none">
+          <circle cx="86.5" cy="16.5" r="2.4" />
+          <circle cx="95.5" cy="25.5" r="2.4" />
+          <path d="M95.5 14.5l-9 13" />
+        </g>
+      </motion.g>
+      <motion.path
+        d="M17 13l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z"
+        fill="#D4F35B"
+        stroke="var(--ink)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        animate={{ scale: [1, 1.2, 1], rotate: [0, 20, 0] }}
+        transition={{ duration: 2.4, repeat: Infinity }}
+      />
+      <circle cx="104" cy="60" r="3.5" fill="#FF7A59" stroke="var(--ink)" strokeWidth="2" />
+      <circle cx="19" cy="58" r="3.5" fill="#FFD97D" stroke="var(--ink)" strokeWidth="2" />
+    </svg>
+  )
+}
+
 /** Dompet yang “membelah” — hero kecil di header. */
 export function SplitMark({ className = '' }: { className?: string }) {
   return (

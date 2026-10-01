@@ -3,7 +3,7 @@ import type { Dispatch, ReactNode } from 'react'
 import type { Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
 import type { Action } from '../../state/billReducer'
-import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, Toggle } from '../../ui'
+import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, TaxIllustration, Toggle } from '../../ui'
 
 function Presets({ label, values, current, onPick }: { label: string; values: number[]; current: number; onPick: (v: number) => void }) {
   return (
@@ -42,7 +42,11 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
 
   return (
     <div>
-      <SectionTitle eyebrow="Langkah 3" title={<>Pajak & <span className="font-serif font-normal italic">service</span></>}>
+      <SectionTitle
+        eyebrow="Langkah 3"
+        title={<>Pajak & <span className="font-serif font-normal italic">service</span></>}
+        art={<TaxIllustration className="w-20 shrink-0" />}
+      >
         Samain sama yang tertulis di struk ya.
       </SectionTitle>
 
