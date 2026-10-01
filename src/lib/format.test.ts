@@ -37,6 +37,11 @@ describe('initials', () => {
     expect(initials('   ')).toBe('')
   })
 
+  it('bisa dibatasi satu huruf untuk avatar kecil', () => {
+    expect(initials('Budi Santoso', 1)).toBe('B')
+    expect(initials('Ani 😎', 1)).toBe('A')
+  })
+
   it('tidak memotong emoji jadi separuh karakter', () => {
     expect(initials('Ani 😎')).toBe('A😎')
     expect(initials('Rina 🇮🇩')).toBe('R🇮🇩')

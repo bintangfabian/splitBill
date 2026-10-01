@@ -38,7 +38,7 @@ export function ItemsStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<A
 
   return (
     <div>
-      <SectionTitle eyebrow="Langkah 2" title={<>Pesan <span className="font-serif font-normal italic">apa aja?</span></>}>
+      <SectionTitle eyebrow="Langkah 2" title={<>Pesan <span className="font-serif font-normal whitespace-nowrap italic">apa aja?</span></>}>
         Satu menu bisa dibagi ke beberapa orang, harganya otomatis dibagi rata.
       </SectionTitle>
 
