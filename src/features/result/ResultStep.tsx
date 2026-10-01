@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRight, ChevronDown, Share2 } from 'lucide-react'
+import { ArrowRight, ChevronDown, Share2, Wallet } from 'lucide-react'
 import { useState, type Dispatch } from 'react'
 import { toast } from 'sonner'
 import type { Bill } from '../../domain/bill'
@@ -92,6 +92,23 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
               </motion.button>
             ))}
           </div>
+          {payer && (
+            <>
+              <label className="mt-3 flex items-center gap-2.5 rounded-2xl bg-surface-2 px-4 py-3 ring-ink/80 transition focus-within:ring-2">
+                <Wallet size={17} className="shrink-0 text-muted" aria-hidden />
+                <input
+                  value={bill.paymentInfo}
+                  onChange={(e) => dispatch({ type: 'paymentInfo', paymentInfo: e.target.value })}
+                  placeholder={`Rekening / e-wallet ${payer.name}`}
+                  aria-label="Rekening atau e-wallet pembayar"
+                  maxLength={80}
+                  autoComplete="off"
+                  className="w-full min-w-0 bg-transparent text-sm font-semibold outline-none placeholder:font-medium placeholder:text-muted/70"
+                />
+              </label>
+              <p className="mt-1.5 text-xs text-muted">Ikut di teks yang dibagikan, mis. BCA 1234567890 a.n. {payer.name}.</p>
+            </>
+          )}
         </motion.div>
       </div>
 

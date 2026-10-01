@@ -23,6 +23,7 @@ export type Bill = {
   items: Item[]
   charges: Charges
   payerId: string | null
+  paymentInfo: string // rekening / e-wallet si pembayar, ikut di teks bagikan
 }
 
 export const emptyBill = (): Bill => ({
@@ -31,4 +32,5 @@ export const emptyBill = (): Bill => ({
   items: [],
   charges: { servicePct: 5, taxPct: 10, taxAfterService: true, discount: 0, discountType: 'amount', extraFee: 0 },
   payerId: null,
+  paymentInfo: '',
 })

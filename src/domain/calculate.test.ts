@@ -13,7 +13,7 @@ const charges = (patch: Partial<Charges> = {}): Charges => ({
   extraFee: 0,
   ...patch,
 })
-const bill = (patch: Partial<Bill>): Bill => ({ title: '', people: [], items: [], charges: charges(), payerId: null, ...patch })
+const bill = (patch: Partial<Bill>): Bill => ({ title: '', people: [], items: [], charges: charges(), payerId: null, paymentInfo: '', ...patch })
 const totals = (b: Bill) => calculate(b).perPerson.map((r) => r.total)
 
 describe('calculate', () => {

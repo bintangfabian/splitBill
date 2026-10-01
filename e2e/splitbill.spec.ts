@@ -228,3 +228,17 @@ test('simpan & tambah menu lain tanpa menutup sheet', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Kopi Susu/ })).toContainText('Budi')
   await expect(page.getByRole('button', { name: /Roti Bakar/ })).toContainText('Ani')
 })
+
+test('info rekening pembayar ikut dibagikan dan tetap tersimpan', async ({ page }) => {
+  await seed(page)
+  await openStep(page, 'Hasil')
+
+  const info = page.getByLabel('Rekening atau e-wallet pembayar')
+  await info.fill('BCA 1234567890 a.n. Budi')
+  const shared = await readShared(page)
+  expect(shared).toContain('Total: Rp 115.500 — dibayar Budi\nTransfer ke: BCA 1234567890 a.n. Budi')
+
+  await page.reload()
+  await openStep(page, 'Hasil')
+  await expect(page.getByLabel('Rekening atau e-wallet pembayar')).toHaveValue('BCA 1234567890 a.n. Budi')
+})

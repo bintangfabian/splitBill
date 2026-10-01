@@ -21,6 +21,7 @@ export function buildShareText(bill: Bill, result: BillResult) {
   const lines = [
     `🧾 ${bill.title || 'Split Bill'}`,
     `Total: ${rupiah(result.total)}${payer ? ` — dibayar ${payer.name}` : ''}`,
+    ...(payer && bill.paymentInfo.trim() ? [`Transfer ke: ${bill.paymentInfo.trim()}`] : []),
     '',
     ...result.perPerson.map((r) => {
       const p = bill.people.find((x) => x.id === r.personId)!
