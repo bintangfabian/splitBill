@@ -98,9 +98,10 @@ e2e/         skenario Playwright
 
 ## 7. Desain
 
-Karakter tampilan Tookthel dipertahankan: kartu bento warna-warni, ilustrasi berwajah, aksen serif miring di judul, logo struk lime-lavender, dan confetti. Desainnya pernah diganti total di #18 lalu dikembalikan di #20, jadi:
+Karakter tampilan Tookthel dipertahankan: kartu bento warna-warni, ilustrasi berwajah, aksen serif miring di judul, logo struk lime tersenyum di kotak gelap, dan confetti. Desainnya pernah diganti total di #18 lalu dikembalikan di #20, jadi:
 
 - Yang boleh langsung dikerjakan: memoles detail seperti kontras, jarak, teks yang terpotong, dan konsistensi gerak.
 - Mengganti elemen identitas (warna, logo, ilustrasi, font, gaya kartu) harus ditanyakan ke pasangan dulu, dengan screenshot sebelum dan sesudah.
 - Cek tampilan di lebar 320 px dan 390 px, mode terang dan gelap.
 - Ilustrasi ada di `src/ui/Illustrations.tsx`. Ekspresi wajah struk dipilih oleh `billMood` di `src/domain/mood.ts`.
+- Logo ada di `src/ui/Logo.tsx` dan dipakai di header serta kepala struk. Bentuknya sama dengan `public/logo.svg`, sumber favicon dan ikon PWA (`npm run icons`). Kalau logonya berubah, ubah keduanya.
