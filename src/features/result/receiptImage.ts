@@ -101,7 +101,7 @@ function layout(r: Receipt, measure: CanvasRenderingContext2D) {
     ctx.restore()
   })
   y += 36
-  centered('S P L I T B I L L', mono(9.5, 700), 14, MUTED)
+  centered('T O O K T H E L', mono(9.5, 700), 14, MUTED)
   y += 6
   centered(r.title, serif(27), 29)
   y += 2
