@@ -46,7 +46,7 @@ export function Printer({
       <motion.div
         animate={busy ? { x: [0, -0.6, 0.6, 0] } : { x: 0 }}
         transition={busy ? { duration: 0.16, repeat: Infinity } : { duration: 0 }}
-        className="relative z-10 rounded-[1.6rem] bg-[#141414] px-4 pt-4 pb-8 shadow-[0_18px_30px_-18px_rgba(0,0,0,.65)] ring-1 ring-white/10 dark:bg-[#2a2a27]"
+        className="relative z-10 rounded-[1.6rem] bg-charcoal px-4 pt-4 pb-8 shadow-[0_18px_30px_-18px_rgba(0,0,0,.65)] ring-1 ring-white/10 dark:bg-[#2a2a27]"
       >
         <div className="flex items-center gap-3">
           <div
@@ -58,11 +58,11 @@ export function Printer({
           <div aria-hidden className="flex flex-col gap-1.5">
             <span className="size-1.5 rounded-full bg-coral" />
             <motion.span
-              className="size-1.5 rounded-full bg-[#B8E0D2]"
+              className="size-1.5 rounded-full bg-mint"
               animate={{ opacity: busy ? [1, 0.25, 1] : 1 }}
               transition={busy ? { duration: 0.5, repeat: Infinity } : { duration: 0 }}
             />
-            <span className="size-1.5 rounded-full bg-[#FFD97D]" />
+            <span className="size-1.5 rounded-full bg-butter" />
           </div>
           <div className="relative shrink-0">
             {/* Denyut halus selama tombol belum ditekan, sebagai petunjuk di mana harus mencetak. */}
@@ -81,7 +81,7 @@ export function Printer({
               aria-label="Cetak struk"
               whileTap={{ y: 2 }}
               animate={{ y: busy ? 2 : 0 }}
-              className="relative grid size-12 place-items-center rounded-full bg-lime text-[#141414] shadow-[inset_0_-3px_0_rgba(0,0,0,.28)] disabled:shadow-none"
+              className="relative grid size-12 place-items-center rounded-full bg-lime text-charcoal shadow-[inset_0_-3px_0_rgba(0,0,0,.28)] disabled:shadow-none"
             >
               <PrinterIcon size={20} strokeWidth={2.25} />
             </motion.button>

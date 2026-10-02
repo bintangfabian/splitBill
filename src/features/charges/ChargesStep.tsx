@@ -3,6 +3,7 @@ import type { Dispatch, ReactNode } from 'react'
 import type { Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
 import { billMood } from '../../domain/mood'
+import { chargeLines } from '../../domain/receipt'
 import type { Action } from '../../state/billReducer'
 import { AnimatedRupiah, MoneyInput, PercentInput, SectionTitle, Segmented, TaxIllustration, Toggle } from '../../ui'
 
@@ -33,13 +34,8 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
   const c = bill.charges
   const patch = (p: Partial<typeof c>) => dispatch({ type: 'charges', patch: p })
 
-  const rows = [
-    { label: 'Subtotal', value: result.subtotal, show: true },
-    { label: 'Diskon', value: -result.discount, show: result.discount > 0 },
-    { label: `Service ${c.servicePct}%`, value: result.service, show: c.servicePct > 0 },
-    { label: `Pajak ${c.taxPct}%`, value: result.tax, show: c.taxPct > 0 },
-    { label: 'Biaya lain', value: result.extra, show: c.extraFee > 0 },
-  ]
+  // Ringkasan memakai baris yang sama dengan struk yang dibagikan.
+  const rows = [{ label: 'Subtotal', amount: result.subtotal }, ...chargeLines(c, result)]
 
   return (
     <div>
@@ -122,15 +118,13 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
         </Card>
       </div>
 
-      <motion.div layout className="mt-4 overflow-hidden rounded-[1.6rem] bg-hero p-5 text-[#F6F5F1]">
-        {rows
-          .filter((r) => r.show)
-          .map((r) => (
-            <motion.div layout key={r.label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-between py-1 text-sm opacity-80">
-              <span>{r.label}</span>
-              <AnimatedRupiah value={r.value} />
-            </motion.div>
-          ))}
+      <motion.div layout className="mt-4 overflow-hidden rounded-[1.6rem] bg-hero p-5 text-cream">
+        {rows.map((r) => (
+          <motion.div layout key={r.label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-between py-1 text-sm opacity-80">
+            <span>{r.label}</span>
+            <AnimatedRupiah value={r.amount} />
+          </motion.div>
+        ))}
         <motion.div layout className="mt-3 flex items-end justify-between border-t border-dashed border-white/20 pt-3">
           <span className="text-sm font-semibold">Total</span>
           <AnimatedRupiah value={result.total} className="text-2xl font-extrabold text-lime" />

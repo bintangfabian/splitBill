@@ -5,9 +5,6 @@ export function MoneyInput({
   onChange,
   label,
   showLabel = false,
-  placeholder = '0',
-  prefix = 'Rp',
-  suffix,
   className = '',
 }: {
   value: number
@@ -16,23 +13,19 @@ export function MoneyInput({
   label: string
   /** Tampilkan `label` sebagai keterangan kecil di dalam kotak, untuk isian tanpa judul di luar. */
   showLabel?: boolean
-  placeholder?: string
-  prefix?: string
-  suffix?: string
   className?: string
 }) {
   const field = (
     <>
-      {prefix && <span className="text-sm font-semibold text-muted">{prefix}</span>}
+      <span className="text-sm font-semibold text-muted">Rp</span>
       <input
         inputMode="numeric"
         aria-label={label}
         value={thousands(value)}
-        placeholder={placeholder}
+        placeholder="0"
         onChange={(e) => onChange(parseNumber(e.target.value))}
         className="w-full min-w-0 bg-transparent text-lg font-semibold tabular-nums outline-none placeholder:text-muted"
       />
-      {suffix && <span className="text-sm font-semibold text-muted">{suffix}</span>}
     </>
   )
   const box = `rounded-2xl bg-surface-2 px-4 ring-ink/80 transition focus-within:ring-2 ${className}`

@@ -1,10 +1,9 @@
 import { motion, type HTMLMotionProps } from 'motion/react'
 
-type ButtonProps = HTMLMotionProps<'button'> & { variant?: 'primary' | 'lime' | 'ghost' | 'soft' }
+type ButtonProps = HTMLMotionProps<'button'> & { variant?: 'primary' | 'ghost' | 'soft' }
 
 const variants = {
   primary: 'bg-ink text-bg',
-  lime: 'bg-lime text-[#141414]',
   ghost: 'bg-transparent text-ink',
   soft: 'bg-surface-2 text-ink',
 }
