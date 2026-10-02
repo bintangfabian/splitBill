@@ -27,7 +27,7 @@ describe('buildShareText', () => {
         '(Bagian Budi sendiri Rp 11.550)',
         '',
         'Sudah termasuk service 5% dan pajak 10%.',
-        'Dihitung pakai SplitBill',
+        'Dihitung pakai Tookthel',
       ].join('\n'),
     )
   })
@@ -64,6 +64,6 @@ describe('buildShareText', () => {
   it('tidak menulis kalimat biaya kalau tanpa service, pajak, diskon, dan biaya lain', () => {
     const text = share(bill({ charges: { ...emptyBill().charges, servicePct: 0, taxPct: 0 } }))
     expect(text).not.toContain('Sudah')
-    expect(text.endsWith('(Bagian Budi sendiri Rp 10.000)\n\nDihitung pakai SplitBill')).toBe(true)
+    expect(text.endsWith('(Bagian Budi sendiri Rp 10.000)\n\nDihitung pakai Tookthel')).toBe(true)
   })
 })

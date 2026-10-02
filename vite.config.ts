@@ -24,9 +24,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'SplitBill — Patungan Tanpa Ribet',
-        short_name: 'SplitBill',
-        description: 'Bagi tagihan bareng teman lengkap dengan pajak & service.',
+        name: 'Tookthel — Jadi Tumbal Boleh, Rugi Jangan',
+        short_name: 'Tookthel',
+        description: 'Yang bayarin dulu di kasir tetap balik modal. Bagi tagihan bareng teman lengkap dengan pajak & service.',
         lang: 'id',
         theme_color: '#F6F5F1',
         background_color: '#F6F5F1',

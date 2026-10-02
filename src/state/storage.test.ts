@@ -14,6 +14,15 @@ function memoryStorage(initial: string | null = null) {
     },
   }
 }
+/** Storage yang membedakan key, untuk menguji migrasi dari key lama. */
+function keyedStorage(entries: Record<string, string> = {}) {
+  const data = new Map(Object.entries(entries))
+  return {
+    getItem: (key: string) => data.get(key) ?? null,
+    setItem: (key: string, v: string) => void data.set(key, v),
+    data,
+  }
+}
 const broken = {
   getItem: (): string | null => {
     throw new Error('akses ditolak')
@@ -43,6 +52,18 @@ describe('loadBill', () => {
     expect(loadBill(memoryStorage(JSON.stringify(old))).paymentInfo).toBe('')
   })
 
+  it('masih membaca tagihan dari key lama sebelum ganti nama ke Tookthel', () => {
+    const saved: Bill = { ...emptyBill(), title: 'Tagihan lama' }
+    expect(loadBill(keyedStorage({ 'splitbill:v1': JSON.stringify(saved) }))).toEqual(saved)
+  })
+
+  it('mendahulukan key baru kalau dua-duanya ada', () => {
+    const lama: Bill = { ...emptyBill(), title: 'Lama' }
+    const baru: Bill = { ...emptyBill(), title: 'Baru' }
+    const store = keyedStorage({ 'splitbill:v1': JSON.stringify(lama), 'tookthel:v1': JSON.stringify(baru) })
+    expect(loadBill(store).title).toBe('Baru')
+  })
+
   it('mengembalikan tagihan kosong kalau data rusak atau storage tidak bisa diakses', () => {
     expect(loadBill(memoryStorage('{bukan json'))).toEqual(emptyBill())
     expect(loadBill(broken)).toEqual(emptyBill())
@@ -55,6 +76,12 @@ describe('saveBill', () => {
     const bill = { ...emptyBill(), title: 'Ngopi' }
     saveBill(bill, store)
     expect(store.value).toBe(JSON.stringify(bill))
+  })
+
+  it('menyimpan ke key baru', () => {
+    const store = keyedStorage()
+    saveBill({ ...emptyBill(), title: 'Ngopi' }, store)
+    expect([...store.data.keys()]).toEqual(['tookthel:v1'])
   })
 
   it('tidak melempar error kalau storage penuh', () => {

@@ -1,6 +1,10 @@
-# SplitBill
+# Tookthel
 
-Bagi tagihan makan bareng teman, lengkap dengan pajak, service, dan diskon yang dihitung adil per orang. Bisa dipasang di layar utama HP dan tetap jalan tanpa internet. Tidak perlu akun dan tidak ada server.
+> Jadi tumbal boleh, rugi jangan.
+
+Tiap nongkrong selesai, semua mendadak sibuk sendiri pas bill datang. Ujung-ujungnya selalu ada satu orang yang jadi tumbal: bayarin dulu di kasir, lalu nagih satu per satu. Dia *took the L*.
+
+Tookthel bikin si tumbal tetap balik modal. Masukkan siapa yang ikut dan apa yang dipesan, lalu pajak, service, dan diskonnya dihitung adil per orang. Hasilnya tinggal dibagikan ke grup. Bisa dipasang di layar utama HP dan tetap jalan tanpa internet. Tidak perlu akun dan tidak ada server.
 
 | Pesanan | Pajak & service | Hasil | Bagikan |
 | --- | --- | --- | --- |
