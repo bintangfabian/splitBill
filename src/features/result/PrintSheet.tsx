@@ -60,7 +60,7 @@ function PrintReceipt({ bill, result }: { bill: Bill; result: BillResult }) {
 
   // Kertas panjang keluar lebih lama, seperti printer kasir sungguhan.
   const duration = ready ? Math.min(3.2, Math.max(1.4, 0.8 + ready.images.ratio * 0.9)) : 0
-  const payer = receipt.payerName ? `, dibayar dulu sama ${receipt.payerName}` : ''
+  const payer = receipt.payerName ? `, ${receipt.payerName} jadi tumbal yang bayarin dulu` : ''
 
   return (
     <div className="flex min-h-[72dvh] flex-col">

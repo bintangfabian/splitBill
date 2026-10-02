@@ -31,7 +31,7 @@ export function buildShareText(bill: Bill, result: BillResult) {
   const note = chargesNote(bill.charges, payer?.name)
 
   return [
-    `${bill.title.trim() || 'Patungan'}: total ${rupiah(result.total)}${payer ? `, dibayar dulu sama ${payer.name}` : ''}.`,
+    `${bill.title.trim() || 'Patungan'}: total ${rupiah(result.total)}${payer ? `, ${payer.name} jadi tumbal yang bayarin dulu` : ''}.`,
     '',
     ...(payer ? [`Transfer ke ${payer.name} ya:`, ...(account ? [account, ''] : [])] : ['Bagian masing-masing:']),
     ...others.map((r) => `- ${name(r.personId)}: ${rupiah(r.total)}`),

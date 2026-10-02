@@ -87,7 +87,7 @@ export function PeopleStep({ bill, dispatch }: { bill: Bill; dispatch: Dispatch<
                   <Avatar name={p.name} color={p.color} size={40} />
                   <div className="min-w-0">
                     <p className="line-clamp-2 text-[15px] leading-tight font-semibold wrap-break-word">{p.name}</p>
-                    {bill.payerId === p.id && <p className="text-xs font-semibold text-violet">Yang bayar</p>}
+                    {bill.payerId === p.id && <p className="text-xs font-semibold text-violet">Tumbal</p>}
                   </div>
                   <button
                     onClick={() => remove(p.id)}

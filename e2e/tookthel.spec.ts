@@ -82,6 +82,8 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
   await page.goto('/')
 
   await addPeople(page, 'Budi', 'Ani', 'Rina')
+  // Orang pertama otomatis jadi tumbal (yang bayar duluan).
+  await expect(page.getByRole('listitem').filter({ hasText: 'Budi' }).getByText('Tumbal', { exact: true })).toBeVisible()
   await next(page)
   await expectStep(page, 'Pesan')
 
@@ -102,9 +104,11 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
   await next(page)
   await expectStep(page, 'Beres')
   await expect(page.locator('footer').getByText('Total', { exact: true })).toBeVisible()
+  await expect(page.getByText('Siapa tumbalnya?')).toBeVisible()
+  await expect(page.getByText('Tumbal hari ini')).toBeVisible()
 
   const shared = await readShared(page)
-  expect(shared).toContain('Patungan: total Rp 121.275, dibayar dulu sama Budi.')
+  expect(shared).toContain('Patungan: total Rp 121.275, Budi jadi tumbal yang bayarin dulu.')
   expect(shared).toContain('- Ani: Rp 34.650')
   expect(shared).toContain('- Rina: Rp 51.975')
   expect(shared).toContain('(Bagian Budi sendiri Rp 34.650)')
@@ -300,7 +304,7 @@ test('info rekening pembayar ikut dibagikan dan tetap tersimpan', async ({ page 
   const info = page.getByLabel('Rekening atau e-wallet pembayar')
   await info.fill('BCA 1234567890 a.n. Budi')
   const shared = await readShared(page)
-  expect(shared).toContain('Patungan: total Rp 115.500, dibayar dulu sama Budi.\n\nTransfer ke Budi ya:\nBCA 1234567890 a.n. Budi')
+  expect(shared).toContain('Patungan: total Rp 115.500, Budi jadi tumbal yang bayarin dulu.\n\nTransfer ke Budi ya:\nBCA 1234567890 a.n. Budi')
 
   await page.reload()
   await openStep(page, 'Hasil')
@@ -312,14 +316,14 @@ test('bagikan mencetak struk, lalu gambar diunduh dan teks disalin di perangkat 
   await openStep(page, 'Hasil')
   const sheet = await printReceipt(page)
   // Struk berupa gambar yang sama dengan yang dibagikan; isinya diringkas di alt.
-  await expect(sheet.getByRole('img', { name: 'Struk Patungan: total Rp 115.500, dibayar dulu sama Budi, 2 orang.' })).toBeVisible()
+  await expect(sheet.getByRole('img', { name: 'Struk Patungan: total Rp 115.500, Budi jadi tumbal yang bayarin dulu, 2 orang.' })).toBeVisible()
 
   const download = page.waitForEvent('download')
   await sheet.getByRole('button', { name: 'Bagikan struk' }).click()
   expect((await download).suggestedFilename()).toBe('struk-patungan.png')
 
   await expect(page.getByText('Gambar struk tersimpan')).toBeVisible()
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Patungan: total Rp 115.500, dibayar dulu sama Budi.')
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Patungan: total Rp 115.500, Budi jadi tumbal yang bayarin dulu.')
 })
 
 test('di HP yang bisa berbagi file, gambar struk dan teks terkirim bersama', async ({ page }) => {

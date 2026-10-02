@@ -20,7 +20,7 @@ describe('buildShareText', () => {
   it('menulis total, siapa yang ditransfer, dan bagian tiap orang seperti pesan biasa', () => {
     expect(share(bill())).toBe(
       [
-        'Makan malam: total Rp 23.100, dibayar dulu sama Budi.',
+        'Makan malam: total Rp 23.100, Budi jadi tumbal yang bayarin dulu.',
         '',
         'Transfer ke Budi ya:',
         '- Ani: Rp 11.550',
