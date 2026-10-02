@@ -59,7 +59,8 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
         </motion.div>
 
         <motion.div variants={rise} className="col-span-2 rounded-[1.6rem] bg-surface p-5">
-          <p className="text-sm font-semibold">Siapa yang bayar duluan?</p>
+          <p className="text-sm font-semibold">Siapa tumbalnya?</p>
+          <p className="text-xs text-muted">Yang bayarin dulu di kasir.</p>
           <div className="no-scrollbar -mx-5 mt-2 flex gap-3 overflow-x-auto px-5 pt-1.5 pb-1">
             {bill.people.map((p) => (
               <motion.button
@@ -117,7 +118,10 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
                   <p className="truncate font-semibold">{p.name}</p>
                   <p className="truncate text-xs text-muted">
                     {isPayer ? (
-                      <span className="font-semibold text-violet">Yang bayar duluan</span>
+                      <span className="font-semibold text-violet">
+                        {/* Di layar sempit cukup "Tumbal" supaya tidak terpotong. */}
+                        Tumbal<span className="max-[359px]:sr-only"> hari ini</span>
+                      </span>
                     ) : payer ? (
                       <>
                         {/* Di layar sempit cukup panah + nama supaya nama tujuan tetap terbaca. */}

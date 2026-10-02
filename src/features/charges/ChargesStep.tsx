@@ -118,7 +118,7 @@ export function ChargesStep({ bill, result, dispatch }: { bill: Bill; result: Bi
               { value: '1000', label: '1rb' },
             ]}
           />
-          <p className="mt-2 text-xs text-muted">Biar gampang transfer. Selisihnya ditanggung yang bayar duluan.</p>
+          <p className="mt-2 text-xs text-muted">Biar gampang transfer. Selisihnya ditanggung si tumbal yang bayar duluan.</p>
         </Card>
       </div>
 

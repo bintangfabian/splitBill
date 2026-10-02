@@ -150,7 +150,7 @@ function layout(r: Receipt, measure: CanvasRenderingContext2D) {
 
   dashed(14)
   caption('Patungan')
-  for (const p of r.people) row(p.isPayer ? `${p.name} (bayar dulu)` : p.name, rupiah(p.amount), mono(11.5, p.isPayer ? 400 : 600))
+  for (const p of r.people) row(p.isPayer ? `${p.name} (tumbal)` : p.name, rupiah(p.amount), mono(11.5, p.isPayer ? 400 : 600))
   if (r.roundingNote) {
     y += 4
     for (const l of lines(r.roundingNote, mono(9.5))) {
