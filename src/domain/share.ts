@@ -2,36 +2,42 @@ import { rupiah } from '../lib/format'
 import type { Bill, Charges } from './bill'
 import type { BillResult } from './calculate'
 
-/** Biaya tambahan yang dipakai saja, mis. "Service 5% · Pajak 10% · Diskon Rp 10.000". */
-function chargesSummary(c: Charges) {
+/** "a", "a dan b", "a, b, dan c" */
+const list = (parts: string[]) => (parts.length < 3 ? parts.join(' dan ') : `${parts.slice(0, -1).join(', ')}, dan ${parts.at(-1)}`)
+
+/** Penjelasan biaya tambahan yang dipakai saja, dalam kalimat biasa. */
+function chargesNote(c: Charges, payerName: string | undefined) {
+  const added = [
+    c.servicePct > 0 && `service ${c.servicePct}%`,
+    c.taxPct > 0 && `pajak ${c.taxPct}%`,
+    c.extraFee > 0 && `biaya lain ${rupiah(c.extraFee)}`,
+  ].filter((s) => s !== false)
   return [
-    c.servicePct > 0 && `Service ${c.servicePct}%`,
-    c.taxPct > 0 && `Pajak ${c.taxPct}%`,
-    c.discount > 0 && `Diskon ${c.discountType === 'pct' ? `${c.discount}%` : rupiah(c.discount)}`,
-    c.extraFee > 0 && `Biaya lain ${rupiah(c.extraFee)}`,
-    c.roundTo > 1 && `Dibulatkan ke ${rupiah(c.roundTo)}`,
+    added.length > 0 && `Sudah termasuk ${list(added)}.`,
+    c.discount > 0 && `Sudah dipotong diskon ${c.discountType === 'pct' ? `${c.discount}%` : rupiah(c.discount)}.`,
+    c.roundTo > 1 && `Dibulatkan ke ${rupiah(c.roundTo)}${payerName ? `, selisihnya ke ${payerName}` : ''}.`,
   ]
-    .filter(Boolean)
-    .join(' · ')
+    .filter((s) => s !== false)
+    .join(' ')
 }
 
-/** Rincian tagihan dalam bentuk teks untuk dibagikan ke grup chat. */
+/** Rincian tagihan sebagai pesan grup chat; ikut terkirim bersama gambar struk. */
 export function buildShareText(bill: Bill, result: BillResult) {
   const payer = bill.people.find((p) => p.id === bill.payerId)
-  const charges = chargesSummary(bill.charges)
-  const lines = [
-    `🧾 ${bill.title || 'Split Bill'}`,
-    `Total: ${rupiah(result.total)}${payer ? ` — dibayar ${payer.name}` : ''}`,
-    ...(payer && bill.paymentInfo.trim() ? [`Transfer ke: ${bill.paymentInfo.trim()}`] : []),
+  const name = (id: string) => bill.people.find((p) => p.id === id)!.name
+  const own = result.perPerson.find((r) => r.personId === payer?.id)
+  const others = result.perPerson.filter((r) => r !== own)
+  const account = payer ? bill.paymentInfo.trim() : ''
+  const note = chargesNote(bill.charges, payer?.name)
+
+  return [
+    `${bill.title.trim() || 'Patungan'}: total ${rupiah(result.total)}${payer ? `, dibayar dulu sama ${payer.name}` : ''}.`,
     '',
-    ...result.perPerson.map((r) => {
-      const p = bill.people.find((x) => x.id === r.personId)!
-      const tag = r.personId === bill.payerId ? ' (yang bayar)' : ''
-      return `• ${p.name}${tag}: ${rupiah(r.total)}`
-    }),
+    ...(payer ? [`Transfer ke ${payer.name} ya:`, ...(account ? [account, ''] : [])] : ['Bagian masing-masing:']),
+    ...others.map((r) => `- ${name(r.personId)}: ${rupiah(r.total)}`),
+    ...(own ? [`(Bagian ${payer!.name} sendiri ${rupiah(own.total)})`] : []),
     '',
-    ...(charges ? [charges] : []),
-    'Dihitung pakai SplitBill ✨',
-  ]
-  return lines.join('\n')
+    ...(note ? [note] : []),
+    'Dihitung pakai SplitBill',
+  ].join('\n')
 }

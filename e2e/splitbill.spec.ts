@@ -48,16 +48,31 @@ async function seed(page: Page) {
   await page.reload()
 }
 
-async function readShared(page: Page) {
+/** Buka halaman struk dari tombol Bagikan lalu cetak; mengembalikan sheet-nya. */
+async function printReceipt(page: Page) {
   await page.locator('footer').getByRole('button', { name: 'Bagikan', exact: true }).click()
+  const sheet = page.getByRole('dialog', { name: 'Struk patungan' })
+  await sheet.getByRole('button', { name: 'Cetak struk' }).click()
+  await expect(sheet.getByRole('button', { name: 'Bagikan struk' })).toBeVisible({ timeout: 10_000 })
+  return sheet
+}
+
+async function readShared(page: Page) {
+  // Skenario ini hanya memeriksa teks, jadi animasi cetak dilewati (sudah dites di skenario bagikan struk).
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const sheet = await printReceipt(page)
+  await sheet.getByRole('button', { name: 'Salin teks' }).click()
   await expect(page.getByText('Rincian disalin')).toBeVisible()
   return page.evaluate(() => navigator.clipboard.readText())
 }
 
 test.beforeEach(async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  // Paksa jalur salin ke clipboard supaya teks yang dibagikan bisa diperiksa.
-  await page.addInitScript(() => Object.defineProperty(navigator, 'share', { value: undefined }))
+  // Paksa jalur unduh + salin seperti di laptop. Skenario share HP mengganti keduanya lagi.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true })
+    Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true })
+  })
 })
 
 test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({ page }) => {
@@ -86,10 +101,10 @@ test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({
   await expect(page.locator('footer').getByText('Total', { exact: true })).toBeVisible()
 
   const shared = await readShared(page)
-  expect(shared).toContain('Total: Rp 121.275 — dibayar Budi')
-  expect(shared).toContain('• Budi (yang bayar): Rp 34.650')
-  expect(shared).toContain('• Ani: Rp 34.650')
-  expect(shared).toContain('• Rina: Rp 51.975')
+  expect(shared).toContain('Patungan: total Rp 121.275, dibayar dulu sama Budi.')
+  expect(shared).toContain('- Ani: Rp 34.650')
+  expect(shared).toContain('- Rina: Rp 51.975')
+  expect(shared).toContain('(Bagian Budi sendiri Rp 34.650)')
 })
 
 test('tidak bisa lanjut sebelum ada minimal 2 orang', async ({ page }) => {
@@ -185,7 +200,7 @@ test('service, diskon, ongkir, dan urutan pajak bisa diatur lewat input berlabel
 
   await next(page)
   const shared = await readShared(page)
-  expect(shared).toContain('Service 10% · Pajak 10% · Diskon Rp 20.000 · Biaya lain Rp 10.000')
+  expect(shared).toContain('Sudah termasuk service 10%, pajak 10%, dan biaya lain Rp 10.000. Sudah dipotong diskon Rp 20.000.')
 })
 
 test('pembulatan per orang menggeser selisih ke pembayar dan ikut dibagikan', async ({ page }) => {
@@ -199,9 +214,9 @@ test('pembulatan per orang menggeser selisih ke pembayar dan ikut dibagikan', as
 
   await next(page)
   const shared = await readShared(page)
-  expect(shared).toContain('• Budi (yang bayar): Rp 57.500')
-  expect(shared).toContain('• Ani: Rp 58.000')
-  expect(shared).toContain('Dibulatkan ke Rp 1.000')
+  expect(shared).toContain('(Bagian Budi sendiri Rp 57.500)')
+  expect(shared).toContain('- Ani: Rp 58.000')
+  expect(shared).toContain('Dibulatkan ke Rp 1.000, selisihnya ke Budi.')
 })
 
 test('confetti muncul sekali per isi tagihan, tidak setiap balik ke Hasil', async ({ page }) => {
@@ -282,11 +297,64 @@ test('info rekening pembayar ikut dibagikan dan tetap tersimpan', async ({ page 
   const info = page.getByLabel('Rekening atau e-wallet pembayar')
   await info.fill('BCA 1234567890 a.n. Budi')
   const shared = await readShared(page)
-  expect(shared).toContain('Total: Rp 115.500 — dibayar Budi\nTransfer ke: BCA 1234567890 a.n. Budi')
+  expect(shared).toContain('Patungan: total Rp 115.500, dibayar dulu sama Budi.\n\nTransfer ke Budi ya:\nBCA 1234567890 a.n. Budi')
 
   await page.reload()
   await openStep(page, 'Hasil')
   await expect(page.getByLabel('Rekening atau e-wallet pembayar')).toHaveValue('BCA 1234567890 a.n. Budi')
+})
+
+test('bagikan mencetak struk, lalu gambar diunduh dan teks disalin di perangkat tanpa share file', async ({ page }) => {
+  await seed(page)
+  await openStep(page, 'Hasil')
+  const sheet = await printReceipt(page)
+  // Struk berupa gambar yang sama dengan yang dibagikan; isinya diringkas di alt.
+  await expect(sheet.getByRole('img', { name: 'Struk Patungan: total Rp 115.500, dibayar dulu sama Budi, 2 orang.' })).toBeVisible()
+
+  const download = page.waitForEvent('download')
+  await sheet.getByRole('button', { name: 'Bagikan struk' }).click()
+  expect((await download).suggestedFilename()).toBe('struk-patungan.png')
+
+  await expect(page.getByText('Gambar struk tersimpan')).toBeVisible()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Patungan: total Rp 115.500, dibayar dulu sama Budi.')
+})
+
+test('di HP yang bisa berbagi file, gambar struk dan teks terkirim bersama', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { shared?: unknown }
+    Object.defineProperty(navigator, 'canShare', { value: (d: ShareData) => !!d.files?.length, configurable: true })
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async (d: ShareData) => {
+        const f = d.files![0]
+        const bytes = new Uint8Array(await f.arrayBuffer())
+        // Tanda tangan PNG di byte 1–3, lebar gambar di byte 16–19.
+        const png = String.fromCharCode(...bytes.slice(1, 4))
+        const width = new DataView(bytes.buffer).getUint32(16)
+        w.shared = { count: d.files!.length, name: f.name, type: f.type, png, width, text: d.text }
+      },
+    })
+  })
+  await seed(page)
+  await openStep(page, 'Hasil')
+  const sheet = await printReceipt(page)
+  await sheet.getByRole('button', { name: 'Bagikan struk' }).click()
+
+  const shared = await page.waitForFunction(() => (window as unknown as { shared?: unknown }).shared).then((h) => h.jsonValue())
+  expect(shared).toMatchObject({ count: 1, name: 'struk-patungan.png', type: 'image/png', png: 'PNG' })
+  // Digambar 3× supaya tajam di HP.
+  expect((shared as { width: number }).width).toBeGreaterThanOrEqual(900)
+  expect((shared as { text: string }).text).toContain('Transfer ke Budi ya:')
+})
+
+test('dengan reduced motion struk langsung jadi tanpa animasi cetak', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await seed(page)
+  await openStep(page, 'Hasil')
+  await page.locator('footer').getByRole('button', { name: 'Bagikan', exact: true }).click()
+  const sheet = page.getByRole('dialog', { name: 'Struk patungan' })
+  await sheet.getByRole('button', { name: 'Cetak struk' }).click()
+  await expect(sheet.getByRole('button', { name: 'Bagikan struk' })).toBeVisible({ timeout: 1000 })
 })
 
 test.describe('layar kecil (320 px)', () => {

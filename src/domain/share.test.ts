@@ -17,52 +17,53 @@ const bill = (patch: Partial<Bill> = {}): Bill => ({
 const share = (b: Bill) => buildShareText(b, calculate(b))
 
 describe('buildShareText', () => {
-  it('menuliskan total, pembayar, dan tagihan tiap orang', () => {
+  it('menulis total, siapa yang ditransfer, dan bagian tiap orang seperti pesan biasa', () => {
     expect(share(bill())).toBe(
       [
-        '🧾 Makan malam',
-        'Total: Rp 23.100 — dibayar Budi',
+        'Makan malam: total Rp 23.100, dibayar dulu sama Budi.',
         '',
-        '• Budi (yang bayar): Rp 11.550',
-        '• Ani: Rp 11.550',
+        'Transfer ke Budi ya:',
+        '- Ani: Rp 11.550',
+        '(Bagian Budi sendiri Rp 11.550)',
         '',
-        'Service 5% · Pajak 10%',
-        'Dihitung pakai SplitBill ✨',
+        'Sudah termasuk service 5% dan pajak 10%.',
+        'Dihitung pakai SplitBill',
       ].join('\n'),
     )
   })
 
-  it('memakai judul bawaan dan tanpa pembayar kalau belum diisi', () => {
-    const text = share(bill({ title: '', payerId: null }))
-    expect(text.split('\n').slice(0, 2)).toEqual(['🧾 Split Bill', 'Total: Rp 23.100'])
+  it('tidak memakai emoji hiasan', () => {
+    expect(share(bill())).not.toMatch(/\p{Extended_Pictographic}/u)
   })
 
-  it('menyebut diskon dan biaya lain yang dipakai', () => {
-    const text = share(bill({ charges: { ...emptyBill().charges, discount: 10, discountType: 'pct', extraFee: 12000 } }))
-    expect(text).toContain('Service 5% · Pajak 10% · Diskon 10% · Biaya lain Rp 12.000')
-    const nominal = share(bill({ charges: { ...emptyBill().charges, discount: 5000 } }))
-    expect(nominal).toContain('Service 5% · Pajak 10% · Diskon Rp 5.000')
+  it('memakai judul bawaan dan menulis bagian semua orang kalau belum ada pembayar', () => {
+    const lines = share(bill({ title: '', payerId: null })).split('\n')
+    expect(lines.slice(0, 5)).toEqual(['Patungan: total Rp 23.100.', '', 'Bagian masing-masing:', '- Budi: Rp 11.550', '- Ani: Rp 11.550'])
   })
 
-  it('menyebut pembulatan kalau dipakai', () => {
-    expect(share(bill({ charges: { ...emptyBill().charges, roundTo: 500 } }))).toContain('Pajak 10% · Dibulatkan ke Rp 500')
+  it('menulis rekening atau e-wallet tepat di bawah ajakan transfer', () => {
+    const lines = share(bill({ paymentInfo: '  BCA 1234567890 a.n. Budi ' })).split('\n')
+    expect(lines.slice(2, 6)).toEqual(['Transfer ke Budi ya:', 'BCA 1234567890 a.n. Budi', '', '- Ani: Rp 11.550'])
+  })
+
+  it('tidak menulis rekening kalau isinya kosong atau belum ada pembayar', () => {
+    expect(share(bill({ paymentInfo: '   ' })).split('\n')[3]).toBe('- Ani: Rp 11.550')
+    expect(share(bill({ paymentInfo: 'BCA 123', payerId: null }))).not.toContain('BCA 123')
+  })
+
+  it('menjelaskan diskon, biaya lain, dan pembulatan yang dipakai', () => {
+    const c = emptyBill().charges
+    expect(share(bill({ charges: { ...c, discount: 10, discountType: 'pct', extraFee: 12000 } }))).toContain(
+      'Sudah termasuk service 5%, pajak 10%, dan biaya lain Rp 12.000. Sudah dipotong diskon 10%.',
+    )
+    expect(share(bill({ charges: { ...c, discount: 5000 } }))).toContain('Sudah dipotong diskon Rp 5.000.')
+    expect(share(bill({ charges: { ...c, roundTo: 500 } }))).toContain('Dibulatkan ke Rp 500, selisihnya ke Budi.')
     expect(share(bill())).not.toContain('Dibulatkan')
   })
 
-  it('menulis rekening atau e-wallet pembayar di bawah total', () => {
-    const lines = share(bill({ paymentInfo: '  BCA 1234567890 a.n. Budi ' })).split('\n')
-    expect(lines.slice(1, 3)).toEqual(['Total: Rp 23.100 — dibayar Budi', 'Transfer ke: BCA 1234567890 a.n. Budi'])
-  })
-
-  it('tidak menulis baris transfer kalau info kosong atau belum ada pembayar', () => {
-    expect(share(bill({ paymentInfo: '   ' }))).not.toContain('Transfer ke')
-    expect(share(bill({ paymentInfo: 'BCA 123', payerId: null }))).not.toContain('Transfer ke')
-  })
-
-  it('tidak menulis baris biaya kalau tanpa service, pajak, diskon, dan biaya lain', () => {
+  it('tidak menulis kalimat biaya kalau tanpa service, pajak, diskon, dan biaya lain', () => {
     const text = share(bill({ charges: { ...emptyBill().charges, servicePct: 0, taxPct: 0 } }))
-    expect(text).not.toContain('Service')
-    expect(text).not.toContain('Pajak')
-    expect(text.endsWith('• Ani: Rp 10.000\n\nDihitung pakai SplitBill ✨')).toBe(true)
+    expect(text).not.toContain('Sudah')
+    expect(text.endsWith('(Bagian Budi sendiri Rp 10.000)\n\nDihitung pakai SplitBill')).toBe(true)
   })
 })

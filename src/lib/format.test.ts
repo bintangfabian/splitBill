@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { initials, parseNumber, rupiah, thousands } from './format'
+import { initials, parseNumber, plainAmount, receiptDate, rupiah, slugify, thousands } from './format'
 
 describe('rupiah', () => {
   it('memformat ke rupiah tanpa desimal dan membulatkan', () => {
@@ -46,5 +46,28 @@ describe('initials', () => {
     expect(initials('Ani 😎')).toBe('A😎')
     expect(initials('Rina 🇮🇩')).toBe('R🇮🇩')
     expect(initials('👨‍👩‍👧 Keluarga')).toBe('👨‍👩‍👧K')
+  })
+})
+
+describe('plainAmount', () => {
+  it('memberi pemisah ribuan tanpa Rp, membulatkan, dan tetap menulis nol', () => {
+    expect(plainAmount(185000)).toBe('185.000')
+    expect(plainAmount(1234.5)).toBe('1.235')
+    expect(plainAmount(0)).toBe('0')
+  })
+})
+
+describe('receiptDate', () => {
+  it('menulis tanggal dan jam lokal dengan nama bulan Indonesia', () => {
+    expect(receiptDate(new Date(2026, 9, 2, 6, 7))).toBe('2 Okt 2026 · 06.07')
+    expect(receiptDate(new Date(2026, 7, 17, 23, 45))).toBe('17 Agu 2026 · 23.45')
+  })
+})
+
+describe('slugify', () => {
+  it('membuat potongan nama file dari judul bebas', () => {
+    expect(slugify('Makan Malam!')).toBe('makan-malam')
+    expect(slugify('  Kafé  Ünik & Co. ')).toBe('kafe-unik-co')
+    expect(slugify('🍜🍜')).toBe('')
   })
 })
