@@ -1,4 +1,4 @@
-# Aturan Kerja SplitBill
+# Aturan Kerja Tookthel
 
 Repo ini dikerjakan berdua oleh **Bintang** ([@bintangfabian](https://github.com/bintangfabian)) dan **Haikal** ([@HaikalFaruq](https://github.com/HaikalFaruq)), sering dengan bantuan AI agent. Aturan di bawah berlaku untuk kita berdua dan untuk agent apa pun yang dipakai.
 
@@ -98,7 +98,7 @@ e2e/         skenario Playwright
 
 ## 7. Desain
 
-Karakter tampilan SplitBill dipertahankan: kartu bento warna-warni, ilustrasi berwajah, aksen serif miring di judul, logo struk lime-lavender, dan confetti. Desainnya pernah diganti total di #18 lalu dikembalikan di #20, jadi:
+Karakter tampilan Tookthel dipertahankan: kartu bento warna-warni, ilustrasi berwajah, aksen serif miring di judul, logo struk lime-lavender, dan confetti. Desainnya pernah diganti total di #18 lalu dikembalikan di #20, jadi:
 
 - Yang boleh langsung dikerjakan: memoles detail seperti kontras, jarak, teks yang terpotong, dan konsistensi gerak.
 - Mengganti elemen identitas (warna, logo, ilustrasi, font, gaya kartu) harus ditanyakan ke pasangan dulu, dengan screenshot sebelum dan sesudah.

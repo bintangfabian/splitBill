@@ -22,7 +22,7 @@ function LcdText({ text, typing }: { text: string; typing?: boolean }) {
 }
 
 /**
- * Printer struk bergaya SplitBill: badan gelap seperti kartu total, layar LCD lime,
+ * Printer struk bergaya Tookthel: badan gelap seperti kartu total, layar LCD lime,
  * dan tombol cetak. `children` adalah kertas yang keluar dari celah di bawahnya.
  */
 export function Printer({

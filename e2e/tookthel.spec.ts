@@ -32,7 +32,7 @@ async function seed(page: Page) {
   await page.goto('/')
   await page.evaluate(() =>
     localStorage.setItem(
-      'splitbill:v1',
+      'tookthel:v1',
       JSON.stringify({
         title: '',
         people: [

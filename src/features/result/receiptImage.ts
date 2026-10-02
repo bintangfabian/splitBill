@@ -79,7 +79,7 @@ function layout(r: Receipt, measure: CanvasRenderingContext2D) {
     y += 18
   }
 
-  // Kepala struk: logo SplitBill, nama "toko", judul tagihan, dan waktu cetak.
+  // Kepala struk: logo Tookthel, nama "toko", judul tagihan, dan waktu cetak.
   const logoAt = y
   ops.push((ctx) => {
     ctx.save()
@@ -175,7 +175,7 @@ function layout(r: Receipt, measure: CanvasRenderingContext2D) {
   dashed(14)
   y += 2
   centered('Makasih udah patungan!', serif(21), 24)
-  centered('dihitung pakai SplitBill', mono(9.5), 14, MUTED)
+  centered('dihitung pakai Tookthel', mono(9.5), 14, MUTED)
   y += 20 + ZIG
 
   return { ops, height: Math.ceil(y) }
@@ -230,7 +230,7 @@ export async function renderReceiptImages(r: Receipt): Promise<ReceiptImages> {
   p.fill()
   for (const op of ops) op(p)
 
-  // Versi bagikan: kertas di atas kartu lavender dengan bintang dan titik warna seperti ilustrasi SplitBill.
+  // Versi bagikan: kertas di atas kartu lavender dengan bintang dan titik warna seperti ilustrasi Tookthel.
   const cw = W + MARGIN * 2
   const ch = height + MARGIN * 2
   const card = document.createElement('canvas')

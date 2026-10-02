@@ -38,6 +38,6 @@ export function buildShareText(bill: Bill, result: BillResult) {
     ...(own ? [`(Bagian ${payer!.name} sendiri ${rupiah(own.total)})`] : []),
     '',
     ...(note ? [note] : []),
-    'Dihitung pakai SplitBill',
+    'Dihitung pakai Tookthel',
   ].join('\n')
 }
