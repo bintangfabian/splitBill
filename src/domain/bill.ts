@@ -27,6 +27,9 @@ export type Bill = {
   paymentInfo: string // rekening / e-wallet si pembayar, ikut di teks bagikan
 }
 
+/** Si tumbal yang bayar duluan di kasir, kalau sudah dipilih. */
+export const payerOf = (bill: Bill) => bill.people.find((p) => p.id === bill.payerId)
+
 export const emptyBill = (): Bill => ({
   title: '',
   people: [],

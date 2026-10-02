@@ -4,7 +4,7 @@ export function Avatar({ name, color, size = 40, selected }: { name: string; col
   return (
     <span
       aria-hidden
-      className="relative inline-grid shrink-0 place-items-center rounded-full font-bold text-[#141414] transition-shadow"
+      className="relative inline-grid shrink-0 place-items-center rounded-full font-bold text-charcoal transition-shadow"
       style={{
         width: size,
         height: size,

@@ -3,9 +3,9 @@ import type { Bill, Item } from './bill'
 /** Jumlah harga semua menu sebelum pajak, termasuk yang belum ada pemesannya. */
 export const itemsSubtotal = (items: Item[]) => items.reduce((s, i) => s + i.price * i.qty, 0)
 
-export type PersonLine = { itemId: string; name: string; amount: number; split: number }
+type PersonLine = { itemId: string; name: string; amount: number; split: number }
 
-export type PersonResult = {
+type PersonResult = {
   personId: string
   lines: PersonLine[]
   subtotal: number

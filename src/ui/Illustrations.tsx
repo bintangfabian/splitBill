@@ -92,7 +92,7 @@ export function ReceiptIllustration({ className = '' }: { className?: string }) 
 }
 
 /** Ekspresi wajah struk; dipilih dari kondisi tagihan oleh fitur yang memakainya. */
-export type FaceMood = 'happy' | 'excited' | 'worried'
+type FaceMood = 'happy' | 'excited' | 'worried'
 
 const stroke = { stroke: 'var(--ink)', strokeWidth: 3, strokeLinecap: 'round' as const, fill: 'none' }
 
@@ -226,7 +226,7 @@ export function WorriedReceiptIllustration({ className = '' }: { className?: str
   )
 }
 
-/** Piala/konfeti — header langkah Hasil. */
+/** Centang bulat dengan konfeti — header langkah Hasil. */
 export function DoneIllustration({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 120 90" className={className} aria-hidden>

@@ -6,13 +6,11 @@ export function Sheet({
   open,
   onOpenChange,
   title,
-  description,
   children,
 }: {
   open: boolean
   onOpenChange: (o: boolean) => void
   title: string
-  description?: string
   children: ReactNode
 }) {
   return (
@@ -23,9 +21,7 @@ export function Sheet({
           <div className="mx-auto mt-3 h-1.5 w-12 shrink-0 rounded-full bg-line" />
           <div className="px-6 pt-4">
             <Drawer.Title className="text-xl font-bold tracking-tight">{title}</Drawer.Title>
-            <Drawer.Description className={description ? 'mt-1 text-sm text-muted' : 'sr-only'}>
-              {description ?? title}
-            </Drawer.Description>
+            <Drawer.Description className="sr-only">{title}</Drawer.Description>
           </div>
           <div className="no-scrollbar overflow-y-auto px-6 pt-5 pb-safe">{children}</div>
         </Drawer.Content>

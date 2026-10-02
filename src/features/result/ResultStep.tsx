@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight, ChevronDown, Wallet } from 'lucide-react'
 import { useState, type Dispatch } from 'react'
-import type { Bill } from '../../domain/bill'
+import { payerOf, type Bill } from '../../domain/bill'
 import type { BillResult } from '../../domain/calculate'
 import { rupiah } from '../../lib/format'
 import type { Action } from '../../state/billReducer'
@@ -18,7 +18,7 @@ const rise = {
 
 export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: BillResult; dispatch: Dispatch<Action> }) {
   const [expanded, setExpanded] = useState<string | null>(null)
-  const payer = bill.people.find((p) => p.id === bill.payerId)
+  const payer = payerOf(bill)
   const owed = result.perPerson.filter((r) => r.personId !== bill.payerId).reduce((s, r) => s + r.total, 0)
 
   return (
@@ -35,7 +35,7 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
 
       {/* Bento ringkasan */}
       <div className="grid grid-cols-2 gap-3">
-        <motion.div variants={rise} className="relative col-span-2 overflow-hidden rounded-[1.8rem] bg-hero p-6 text-[#F6F5F1]">
+        <motion.div variants={rise} className="relative col-span-2 overflow-hidden rounded-[1.8rem] bg-hero p-6 text-cream">
           <motion.div
             aria-hidden
             className="absolute -top-16 -right-10 size-48 rounded-full bg-lime/25 blur-2xl"
@@ -49,11 +49,11 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
           </p>
         </motion.div>
 
-        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#C3B1E1] p-4 text-[#141414] min-[360px]:p-5">
+        <motion.div variants={rise} className="rounded-[1.6rem] bg-lavender p-4 text-charcoal min-[360px]:p-5">
           <p className="text-xs font-semibold opacity-70">Pajak + service</p>
           <AnimatedRupiah value={result.tax + result.service} className="mt-1 block text-[clamp(15px,4.6vw,18px)] font-extrabold whitespace-nowrap" />
         </motion.div>
-        <motion.div variants={rise} className="rounded-[1.6rem] bg-[#B8E0D2] p-4 text-[#141414] min-[360px]:p-5">
+        <motion.div variants={rise} className="rounded-[1.6rem] bg-mint p-4 text-charcoal min-[360px]:p-5">
           <p className="text-xs font-semibold opacity-70">Ditagih ke teman</p>
           <AnimatedRupiah value={owed} className="mt-1 block text-[clamp(15px,4.6vw,18px)] font-extrabold whitespace-nowrap" />
         </motion.div>
@@ -163,7 +163,6 @@ export function ResultStep({ bill, result, dispatch }: { bill: Bill; result: Bil
           )
         })}
       </div>
-
     </motion.div>
   )
 }
