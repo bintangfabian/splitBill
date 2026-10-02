@@ -1,7 +1,7 @@
 import { motion } from 'motion/react'
 import { RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { SplitMark } from '../ui'
+import { Logo } from '../ui'
 
 export function AppHeader({
   title,
@@ -20,7 +20,7 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-20 bg-bg/80 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-3 backdrop-blur-xl">
       <div className="flex items-center gap-3">
-        <SplitMark className="size-10 shrink-0" />
+        <Logo className="size-10 shrink-0" />
         <input
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}

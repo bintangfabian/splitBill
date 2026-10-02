@@ -1,6 +1,7 @@
 import type { Receipt } from '../../domain/receipt'
 import { plainAmount, rupiah, slugify } from '../../lib/format'
 import { wrapText } from '../../lib/text'
+import { LOGO } from '../../ui'
 
 // Ukuran dalam piksel logis; kanvasnya digambar 3× supaya tajam di layar HP dan saat dibagikan.
 const W = 260
@@ -16,6 +17,9 @@ const RULE = '#bdbab0'
 const PAPER = '#fffefa'
 const LIME = '#d4f35b'
 const LAVENDER = '#c3b1e1'
+// Warna kotak dan wajah logo, sama persis dengan ikon aplikasi.
+const LOGO_INK = '#141414'
+const LOGO_SIZE = 34
 
 const MONO = 'ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Roboto Mono", "Liberation Mono", monospace'
 const SERIF = '"Instrument Serif", Georgia, serif'
@@ -83,24 +87,34 @@ function layout(r: Receipt, measure: CanvasRenderingContext2D) {
   const logoAt = y
   ops.push((ctx) => {
     ctx.save()
-    ctx.translate(W / 2 - 18, logoAt)
-    ctx.scale(0.75, 0.75)
-    ctx.lineWidth = 2.5
-    ctx.lineJoin = 'round'
-    ctx.strokeStyle = INK
-    for (const [d, fill] of [
-      ['M6 10h16v30l-4-3-4 3-4-3-4 3z', LIME],
-      ['M26 10h16v30l-4-3-4 3-4-3-4 3z', LAVENDER],
+    ctx.translate(W / 2 - LOGO_SIZE / 2, logoAt)
+    ctx.scale(LOGO_SIZE / 512, LOGO_SIZE / 512)
+    for (const [d, color] of [
+      [LOGO.tile, LOGO_INK],
+      [LOGO.receipt, LIME],
     ]) {
-      const p = new Path2D(d)
-      ctx.fillStyle = fill
+      ctx.fillStyle = color
       // eslint-disable-next-line unicorn/no-array-fill-with-reference-type -- fill() kanvas dengan Path2D, bukan Array.fill
-      ctx.fill(p)
-      ctx.stroke(p)
+      ctx.fill(new Path2D(d))
     }
+    ctx.fillStyle = LOGO_INK
+    for (const [cx, cy] of LOGO.eyes) {
+      ctx.beginPath()
+      ctx.arc(cx, cy, 14, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    ctx.strokeStyle = LOGO_INK
+    ctx.lineCap = 'round'
+    ctx.lineWidth = 16
+    ctx.stroke(new Path2D(LOGO.smile))
+    ctx.lineCap = 'butt'
+    ctx.lineWidth = 10
+    ctx.globalAlpha = 0.35
+    ctx.setLineDash([14, 14])
+    ctx.stroke(new Path2D(LOGO.cut))
     ctx.restore()
   })
-  y += 36
+  y += LOGO_SIZE + 6
   centered('T O O K T H E L', mono(9.5, 700), 14, MUTED)
   y += 6
   centered(r.title, serif(27), 29)

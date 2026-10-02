@@ -226,24 +226,6 @@ export function WorriedReceiptIllustration({ className = '' }: { className?: str
   )
 }
 
-/** Dompet yang “membelah” — hero kecil di header. */
-export function SplitMark({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <motion.g
-        initial={{ x: 0 }}
-        animate={{ x: [-0, -3, 0] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <path d="M6 10h16v30l-4-3-4 3-4-3-4 3z" fill="#D4F35B" stroke="var(--ink)" strokeWidth="2.5" strokeLinejoin="round" />
-      </motion.g>
-      <motion.g animate={{ x: [0, 3, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
-        <path d="M26 10h16v30l-4-3-4 3-4-3-4 3z" fill="#C3B1E1" stroke="var(--ink)" strokeWidth="2.5" strokeLinejoin="round" />
-      </motion.g>
-    </svg>
-  )
-}
-
 /** Piala/konfeti — header langkah Hasil. */
 export function DoneIllustration({ className = '' }: { className?: string }) {
   return (
