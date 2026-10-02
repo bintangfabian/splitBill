@@ -76,6 +76,9 @@ test.beforeEach(async ({ page, context }) => {
 })
 
 test('alur lengkap: teman → pesanan → pajak → hasil → bagikan', async ({ page }) => {
+  // Skenario terpanjang (3 teman, 3 menu, 4 langkah, lalu cetak struk). Saat laptop sibuk dan trace
+  // merekam, durasinya bisa mendekati batas 30 detik, jadi batasnya dinaikkan 3×.
+  test.slow()
   await page.goto('/')
 
   await addPeople(page, 'Budi', 'Ani', 'Rina')
