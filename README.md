@@ -2,16 +2,16 @@
 
 Bagi tagihan makan bareng teman, lengkap dengan pajak, service, dan diskon yang dihitung adil per orang. Bisa dipasang di layar utama HP dan tetap jalan tanpa internet. Tidak perlu akun dan tidak ada server.
 
-| Pesanan | Pajak & service | Hasil |
-| --- | --- | --- |
-| <img src="docs/screenshots/pesanan.png" width="240" alt="Daftar pesanan dengan subtotal"> | <img src="docs/screenshots/pajak.png" width="240" alt="Pengaturan service, pajak, dan diskon"> | <img src="docs/screenshots/hasil.png" width="240" alt="Struk rincian patungan per orang"> |
+| Pesanan | Pajak & service | Hasil | Bagikan |
+| --- | --- | --- | --- |
+| <img src="docs/screenshots/pesanan.png" width="200" alt="Daftar pesanan dengan subtotal"> | <img src="docs/screenshots/pajak.png" width="200" alt="Pengaturan service, pajak, dan diskon"> | <img src="docs/screenshots/hasil.png" width="200" alt="Struk rincian patungan per orang"> | <img src="docs/screenshots/struk.png" width="200" alt="Struk patungan yang dicetak dari printer, siap dibagikan"> |
 
 ## Fitur
 
 - **Menu bisa dibagi.** Harga menu dibagi rata di antara orang yang memesannya.
 - **Service, pajak (PB1), diskon, dan biaya lain.** Diskon bisa nominal atau persen, dan pajak bisa dihitung sebelum atau sesudah service.
 - **Hasil berupa struk per orang.** Terlihat siapa transfer berapa ke siapa, beserta rincian menunya.
-- **Bagikan ke grup chat.** Teks rincian ikut memuat nomor rekening atau e-wallet si pembayar.
+- **Bagikan sebagai struk.** Struknya dicetak dari printer kecil, lalu gambar struk dan teks rinciannya terkirim sekaligus lewat menu share HP. Di laptop, gambarnya diunduh dan teksnya disalin. Nomor rekening atau e-wallet si pembayar ikut tertulis.
 - **Urungkan.** Orang, pesanan, dan tagihan yang terhapus bisa dikembalikan.
 - **Tersimpan di perangkat** (localStorage), bisa dipasang sebagai aplikasi (PWA), dan mendukung mode gelap.
 
@@ -56,7 +56,7 @@ Pertama kali menjalankan E2E: `npx playwright install --only-shell chromium`.
 
 ```
 src/
-  domain/    logika murni: hitung tagihan, validasi langkah, teks bagikan
+  domain/    logika murni: hitung tagihan, validasi langkah, isi struk, teks bagikan
   state/     reducer, penyimpanan localStorage, hook useBill
   lib/       format rupiah, id
   ui/        komponen dasar dan ilustrasi

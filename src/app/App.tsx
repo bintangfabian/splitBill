@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, MotionConfig, type Variants } from 'motion/react'
-import { useEffect, useMemo, useRef } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { calculate, itemsSubtotal } from '../domain/calculate'
 import { LAST_STEP, stepBlocker } from '../domain/steps'
@@ -8,13 +8,15 @@ import { ItemsStep } from '../features/items/ItemsStep'
 import { PeopleStep } from '../features/people/PeopleStep'
 import { celebrate } from '../features/result/celebrate'
 import { ResultStep } from '../features/result/ResultStep'
-import { shareBill } from '../features/result/shareBill'
 import { useBill } from '../state/useBill'
 import { AppToaster } from '../ui'
 import { AppHeader } from './AppHeader'
 import { BottomBar } from './BottomBar'
 import { StepNav } from './StepNav'
 import { useStepper } from './useStepper'
+
+// Halaman cetak struk (beserta kanvas dan sheet-nya) baru dimuat saat pertama kali membagikan.
+const PrintSheet = lazy(() => import('../features/result/PrintSheet'))
 
 // Langkah lama dan baru beranimasi bersamaan (popLayout), jadi konten baru langsung muncul.
 const stepVariants: Variants = {
@@ -27,6 +29,9 @@ export default function App() {
   const [bill, dispatch] = useBill()
   const { step, dir, go } = useStepper(bill.items.length ? 1 : 0)
   const result = useMemo(() => calculate(bill), [bill])
+  const [printOpen, setPrintOpen] = useState(false)
+  // Tetap terpasang setelah dibuka sekali supaya animasi tutup sheet sempat jalan.
+  const [printMounted, setPrintMounted] = useState(false)
 
   // Maju hanya kalau syarat langkahnya terpenuhi; pesan kesalahan tampil sebagai toast.
   const tryGo = (to: number) => {
@@ -102,9 +107,18 @@ export default function App() {
           total={result.total}
           onBack={() => go(step - 1)}
           onNext={() => tryGo(step + 1)}
-          onShare={() => void shareBill(bill, result)}
+          onShare={() => {
+            setPrintMounted(true)
+            setPrintOpen(true)
+          }}
         />
       </div>
+
+      {printMounted && (
+        <Suspense fallback={null}>
+          <PrintSheet open={printOpen} onOpenChange={setPrintOpen} bill={bill} result={result} />
+        </Suspense>
+      )}
 
       <AppToaster />
     </MotionConfig>
